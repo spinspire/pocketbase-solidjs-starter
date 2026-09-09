@@ -1,28 +1,54 @@
-// basic's App.css, expressed as Sass: variables for the palette, nesting
-// for scope. Vite compiles it because the file ends in .scss — no config.
-$nav-bg: #282c34;
-$nav-link: #93c5fd;
-$link: #1d5f91;
+// Oat CSS base — semantic HTML styling, zero classes needed.
+// Must stay first: Sass @use rules precede all other statements.
+@use '@knadh/oat/oat.min.css';
+
+// Slate theme from https://oat.ink/demo/ (demo.css) — :root override of
+// Oat's default palette. Oat resolves light/dark via light-dark().
+:root {
+  --background: light-dark(#f8fafc, #020817);
+  --foreground: light-dark(#0f172a, #f8fafc);
+  --card: light-dark(#fff, #0f172a);
+  --card-foreground: light-dark(#0f172a, #f8fafc);
+  --primary: light-dark(#0f172a, #f8fafc);
+  --primary-foreground: light-dark(#f8fafc, #0f172a);
+  --secondary: light-dark(#f1f5f9, #1e293b);
+  --secondary-foreground: light-dark(#0f172a, #f8fafc);
+  --muted: light-dark(#f1f5f9, #1e293b);
+  --muted-foreground: light-dark(#64748b, #94a3b8);
+  --faint: light-dark(#f8fafc, #131c2e);
+  --faint-foreground: light-dark(#94a3b8, #64748b);
+  --accent: light-dark(#f1f5f9, #1e293b);
+  --danger: light-dark(#d32f2f, #f4807b);
+  --danger-foreground: light-dark(#fafafa, #0f172a);
+  --success: light-dark(#008032, #6cc070);
+  --success-foreground: light-dark(#fafafa, #0f172a);
+  --warning: light-dark(#a65b00, #f0a030);
+  --warning-foreground: #0f172a;
+  --border: light-dark(#cbd5e1, #334155);
+  --input: light-dark(#cbd5e1, #334155);
+  --ring: light-dark(#0f172a, #cbd5e1);
+}
+
+// basic's App.css, expressed as Sass: nesting for scope. Vite compiles it
+// because the file ends in .scss — no config. App-chrome overrides only;
+// element defaults come from Oat. All colors are Oat palette tokens
+// (see @knadh/oat/css/01-theme.css) — no hard-coded colors here.
 
 body {
-  margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
+  // Oat owns margin + font stack; app wants centered shell.
   text-align: center;
 }
 
 nav {
   padding: 1rem;
-  background-color: $nav-bg;
+  background-color: var(--primary);
 
   > a {
     display: inline-block;
     margin: 0 0.125rem;
     padding: 0.4rem 0.75rem;
     border-radius: 0.5rem;
-    color: $nav-link;
+    color: var(--primary-foreground);
     font-weight: 600;
     text-decoration: none;
     transition:
@@ -30,8 +56,7 @@ nav {
       color 150ms ease;
 
     &:hover {
-      background-color: rgb(255 255 255 / 10%);
-      color: #dbeafe;
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
     }
   }
 }
@@ -47,26 +72,26 @@ main {
 }
 
 .increment {
+  // Oat styles <button> natively; keep the app's size tweak only.
   font-size: 1rem;
   padding: 0.5rem 1.5rem;
-  cursor: pointer;
 }
 
 main a {
-  color: $link;
+  color: var(--foreground);
   font-weight: 600;
-  text-decoration-color: #7bb6df;
+  text-decoration-color: var(--border);
   text-decoration-thickness: 0.1em;
   text-underline-offset: 0.2em;
   transition: color 150ms ease;
 
   &:hover {
-    color: #123f63;
+    color: var(--muted-foreground);
   }
 }
 
 a:focus-visible {
-  outline: 3px solid #0284c7;
+  outline: 3px solid var(--ring);
   outline-offset: 3px;
   border-radius: 0.2rem;
 }

@@ -1,4 +1,5 @@
 import { Title } from '@solidjs/meta';
+import '@knadh/oat/oat.min.js';
 import { Loading } from 'solid-js';
 import { paths, Router } from './router';
 import './App.scss';
