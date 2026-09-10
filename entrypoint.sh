@@ -16,9 +16,11 @@ if [ -f ./.env ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Download PocketBase binary if not present
+# Download PocketBase binary if not present (skipped when PB_BIN points at
+# an installed binary, e.g. /usr/local/bin/pocketbase in Docker).
 # ---------------------------------------------------------------------------
-if [ ! -x ./pocketbase ]; then
+PB_BIN="${PB_BIN:-./pocketbase}"
+if [ ! -x "${PB_BIN}" ]; then
     echo "PocketBase not found. Downloading..."
 
     ARCH=$(uname -m)
@@ -70,11 +72,11 @@ fi
 
 if [ $# -eq 0 ]; then
   # No command provided, default to pocketbase serve
-  set -- ./pocketbase serve --dev --automigrate=false --http=0.0.0.0:${PB_PORT:-8090} --publicDir=./dist/client
+  set -- "${PB_BIN}" serve --dev --automigrate=false --http=0.0.0.0:${PB_PORT:-8090} --publicDir=./dist/client
 fi
 
 # Apply pending migrations before serve: serve runs with --automigrate=false,
 # and hooks (bootstrap/seeds) require migrated tables at onBootstrap time.
-./pocketbase migrate up
+"${PB_BIN}" migrate up
 
 exec "$@"
