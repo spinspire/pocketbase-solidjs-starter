@@ -4,7 +4,7 @@ import logo from '../logo.svg';
 
 export default function Home() {
   return (
-    <main>
+    <main class="center">
       <Title>Home - Solid App</Title>
       <img src={logo} class="logo" alt="Solid logo" />
       <h1>Hello Solid!</h1>

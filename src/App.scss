@@ -35,13 +35,13 @@
 // (see @knadh/oat/css/01-theme.css) — no hard-coded colors here.
 
 body {
-  // Oat owns margin + font stack; app wants centered shell.
-  text-align: center;
+  // Natural start alignment everywhere; centering is opt-in per component.
 }
 
 nav {
   padding: 1rem;
   background-color: var(--primary);
+  text-align: center;
 
   > a {
     display: inline-block;
@@ -66,6 +66,14 @@ main {
   max-width: 60rem;
   margin-inline: auto;
   padding: 3rem 1rem;
+}
+
+h1 {
+  text-align: center;
+}
+
+.center {
+  text-align: center;
 }
 
 // Narrow centered card for single-column forms (login, editor).
