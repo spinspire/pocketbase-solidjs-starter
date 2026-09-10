@@ -1,8 +1,8 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
-import type { RecordModel } from "pocketbase";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
+import type { UsersResponse } from "../../lib/pocketbase-types";
 import { bumpData, dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
@@ -26,7 +26,7 @@ export default function UsersIndex() {
     return (await pb.collection("users").getFullList({
       sort: "email",
       requestKey: "users-list",
-    })) as RecordModel[];
+    })) as UsersResponse[];
   });
 
   const create = async (ev: Event) => {
