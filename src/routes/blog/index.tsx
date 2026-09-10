@@ -1,5 +1,5 @@
 import { Title } from "@solidjs/meta";
-import { Errored, For, Show, createMemo, createSignal } from "solid-js";
+import { Errored, For, Show, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import { renderMarkdown } from "../../lib/markdown";
 import { dataRev } from "../../lib/refresh";
@@ -52,6 +52,48 @@ export default function BlogIndex() {
 
   const items = createMemo(() => result()?.items ?? []);
 
+  type Post = PostsResponse<{ author: UsersResponse }>;
+  const [live, setLive] = createSignal<Post[]>([]);
+  // Seed/resync from fetches (effect phase writes are legal).
+  createEffect(items, (list) => {
+    setLive(list);
+  });
+
+  const visible = (p: Post): boolean => {
+    if (p.status === "published") return true;
+    const me = currentUser();
+    return !!me && (isSuperuser() || p.author === me.id);
+  };
+
+  // Live-merge realtime events. Server only sends what API rules allow;
+  // visible() re-applies the role filter for status flips. Expanded author
+  // isn't in realtime payloads, so updates carry over the old expansion.
+  const applyRealtime = (e: { action: string; record: Post }) => {
+    setLive((list) => {
+      if (e.action === "create") {
+        if (!visible(e.record)) return list;
+        if (list.some((p) => p.id === e.record.id)) return list;
+        return [e.record, ...list].slice(0, PER_PAGE);
+      }
+      if (e.action === "update") {
+        if (!visible(e.record)) return list.filter((p) => p.id !== e.record.id);
+        return list.map((p) =>
+          p.id === e.record.id ? { ...e.record, expand: p.expand } : p,
+        );
+      }
+      if (e.action === "delete") return list.filter((p) => p.id !== e.record.id);
+      return list;
+    });
+  };
+  let unsub: (() => void) | undefined;
+  void pb
+    .collection("posts")
+    .subscribe("*", applyRealtime)
+    .then((u) => {
+      unsub = u;
+    });
+  onCleanup(() => unsub?.());
+
   return (
     <main>
       <Title>Blog - Solid App</Title>
@@ -62,7 +104,7 @@ export default function BlogIndex() {
       </Show>
       <Paginator page={page()} totalPages={result()?.totalPages ?? 1} onPage={setPage} />
       <div class={styles.grid}>
-        <For each={items()}>
+        <For each={live()}>
           {(post) => (
             <article class="card">
               <header class="hstack justify-between items-center">
