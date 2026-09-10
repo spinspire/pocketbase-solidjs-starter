@@ -2,6 +2,7 @@ import { Title } from '@solidjs/meta';
 import '@knadh/oat/oat.min.js';
 import { Loading, Show } from 'solid-js';
 import { paths, Router } from './router';
+import Alerts from './components/Alerts';
 import UserBadge from './components/UserBadge';
 import { currentUser, isSuperuser } from './lib/pb';
 import './App.scss';
@@ -25,6 +26,7 @@ export default function App() {
             </Show>
           </nav>
           <Loading fallback={<main>Loading…</main>}>{props.children}</Loading>
+          <Alerts />
         </>
       )}
     </Router>
