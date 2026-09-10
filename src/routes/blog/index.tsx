@@ -86,7 +86,7 @@ export default function BlogIndex() {
                 </small>
                 <span class="hstack gap-2">
                   <Show when={isSuperuser() || post.author === currentUser()?.id}>
-                    <a href={`${paths.blog(post.slug as string)()}?edit=1`} class="button outline small">Edit</a>
+                    <a href={`${paths.blog(post.slug as string)()}/edit`} class="button outline small">Edit</a>
                   </Show>
                   <a href={paths.blog(post.slug as string)()} class="button ghost small">Read →</a>
                 </span>

@@ -1,13 +1,12 @@
 import { Title } from "@solidjs/meta";
-import { useSearchParams, type RouteProps } from "@solidjs/router";
-import { Errored, Loading, Show, createEffect, createMemo, createSignal } from "solid-js";
-import PostEditor from "../../../components/PostEditor";
+import type { RouteProps } from "@solidjs/router";
+import { Errored, Loading, Show, createMemo } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../../lib/pb";
 import { dataRev } from "../../../lib/refresh";
+import { paths } from "../../../router";
 import type { Router } from "../../../router";
 
 export default function PostDetail(props: RouteProps<"/blog/:slug">) {
-  const [search, setSearch] = useSearchParams();
   const post = createMemo(() => {
     dataRev();
     return pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
@@ -19,29 +18,12 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
     const p = post();
     return p?.cover ? pb.files.getURL(p, p.cover, { thumb: "800x0" }) : null;
   });
-  // Superusers edit anything, authors their own. Editing happens inline —
-  // no separate edit route. `?edit=1` opens the editor directly.
+  // Read-only view. Editing lives only in the /edit route (single editor UI).
   const canEdit = createMemo(() => {
     const me = currentUser();
     const p = post();
     return !!me && (isSuperuser() || p.author === me.id);
   });
-  const [editing, setEditing] = createSignal(search.edit === "1");
-  // Fresh slug → fresh editor state (no React-style key prop in Solid).
-  createEffect(
-    () => props.params.slug,
-    () => {
-      setEditing(search.edit === "1");
-    },
-  );
-  const startEdit = () => {
-    setSearch({ edit: "1" });
-    setEditing(true);
-  };
-  const stopEdit = () => {
-    setSearch({ edit: undefined });
-    setEditing(false);
-  };
 
   return (
     <Errored fallback={<main><h1>Not found</h1><p>No post with this slug.</p></main>}>
@@ -53,26 +35,13 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
               <span class="badge" data-variant="warning">Draft</span>
             </Show>
             <Show when={canEdit()}>
-              <Show
-                when={editing()}
-                fallback={<button type="button" class="outline small" onClick={startEdit}>Edit post</button>}
-              >
-                <button type="button" class="outline small" onClick={stopEdit}>View post</button>
-              </Show>
+              <a href={`${paths.blog(props.params.slug)()}/edit`} class="button outline small">Edit post</a>
             </Show>
           </div>
           <h1>{post().title}</h1>
           <p class="text-light">{post().publishedAt ?? post().created} · {(post().expand as Record<string, { name?: string }>)?.author?.name ?? "Unknown"}</p>
           <Show when={coverUrl()}>{(url) => <img src={url()} alt="" />}</Show>
-          <Show
-            when={editing() && canEdit()}
-            fallback={<p>{post().body}</p>}
-          >
-            <PostEditor
-              initial={post()}
-              onSave={() => stopEdit()}
-            />
-          </Show>
+          <p>{post().body}</p>
         </main>
       </Loading>
     </Errored>

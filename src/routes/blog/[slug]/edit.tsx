@@ -27,7 +27,10 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
         <main>
           <Title>Edit post - Solid App</Title>
-          <h1>Edit post</h1>
+          <div class="hstack justify-between items-center">
+            <h1>Edit post</h1>
+            <a href={paths.blog(props.params.slug)()} class="button ghost small">← Back to post</a>
+          </div>
           {/* Keyed Show resolves the async value in a suspending scope:
               passing post() directly as a prop reads it in PostEditor's
               untracked body (PENDING_ASYNC_UNTRACKED_READ). */}
