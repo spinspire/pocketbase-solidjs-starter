@@ -3,9 +3,10 @@ import { Errored, For, Show, createMemo, createSignal } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import { renderMarkdown } from "../../lib/markdown";
 import { dataRev } from "../../lib/refresh";
+import Paginator from "../../components/Paginator";
 import { paths } from "../../router";
 
-const PER_PAGE = 10;
+const PER_PAGE = 15; // multiple of the 3-column grid
 
 function fmtDate(iso: string | undefined): string {
   if (!iso) return "";
@@ -57,6 +58,7 @@ export default function BlogIndex() {
       <Show when={currentUser()}>
         <p><a href={paths.blog.new()}>New post</a></p>
       </Show>
+      <Paginator page={page()} totalPages={result()?.totalPages ?? 1} onPage={setPage} />
       <div class="post-grid">
         <For each={items()}>
           {(post) => (
@@ -97,10 +99,7 @@ export default function BlogIndex() {
         </For>
       </div>
       </Errored>
-      <menu class="buttons">
-        <li><button class="outline small" disabled={page() <= 1} onClick={() => setPage(page() - 1)}>← Prev</button></li>
-        <li><button class="outline small" disabled={!result() || page() >= result()!.totalPages} onClick={() => setPage(page() + 1)}>Next →</button></li>
-      </menu>
+      <Paginator page={page()} totalPages={result()?.totalPages ?? 1} onPage={setPage} />
     </main>
   );
 }

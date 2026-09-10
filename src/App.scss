@@ -130,6 +130,15 @@ h1 {
   border-radius: var(--radius-large);
 }
 
+// Paginator sits clear of neighbors, centered.
+.paginator {
+  display: flex;
+  justify-content: center;
+  margin-block: var(--space-6);
+  padding: 0;
+  background: none;
+}
+
 .logo {
   animation: logo-spin infinite 20s linear;
   height: 24vmin;
