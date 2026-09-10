@@ -21,3 +21,15 @@ Use these whenever you are debugging reactivity (something doesn't update, updat
   - `{"method":"costs"}` — running cost tables for the open session
 
 Name your signals/memos/effects (the `{ name: "..." }` option) — attribution reports scopes by name.
+
+## Backend (PocketBase v0.40, SQLite)
+
+- `entrypoint.sh` is PB-only: downloads the binary, defaults env, runs `migrate up`, `exec`s serve. Never add background processes to it (orphan risk).
+- `bun run dev` boots the whole stack: the `pocketbaseDev` plugin in `vite.config.ts` spawns `./entrypoint.sh` (dev-only, `apply: "serve"`) and group-kills it on close/signals.
+- `pb_data/` is gitignored scratch; `pb_migrations/` is committed; `pb_hooks/*.pb.js` holds request hooks + `bootstrap.pb.js` (idempotent superuser/test-user/seeds from `PB_*` env).
+- Goja gotcha: no top-level functions in hooks — each handler is an isolated scope. Global `onServe` does not exist; use `onBootstrap`.
+- The human runs all servers (vite + PB). Never start, stop, or kill server processes.
+
+## Env
+
+`.env` is gitignored; `.env.example` documents `PB_SUPERUSER_*` / `PB_TESTUSER_*` (test user defaults to superuser creds). Never print secret values.

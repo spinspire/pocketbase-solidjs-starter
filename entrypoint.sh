@@ -39,35 +39,20 @@ if [ ! -x ./pocketbase ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Superuser bootstrap – uses the CLI to create/upsert a superuser directly
-# in the database (no server needed). Generates a random password if
-# PB_SUPERUSER_PASSWORD is not set.
+# Credential defaults – passwords are generated when emails are set without
+# one. Records themselves are created by pb_hooks/bootstrap.pb.js at serve
+# time (idempotent), so this script never touches the database.
 #
 # Optional env vars:
-#   PB_SUPERUSER_EMAIL      – email for the superuser (required)
-#   PB_SUPERUSER_PASSWORD   – if set, use this instead of generating random
-# ---------------------------------------------------------------------------
-if [ -n "${PB_SUPERUSER_EMAIL}" ]; then
-    if [ -z "${PB_SUPERUSER_PASSWORD}" ]; then
-        PB_SUPERUSER_PASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        echo "PB_SUPERUSER_PASSWORD=${PB_SUPERUSER_PASSWORD}" >> ./.env
-    fi
-
-    if ./pocketbase superuser upsert "${PB_SUPERUSER_EMAIL}" "${PB_SUPERUSER_PASSWORD}" > /dev/null 2>&1; then
-        echo ">>> Superuser: ${PB_SUPERUSER_EMAIL} / ${PB_SUPERUSER_PASSWORD}"
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# Test-user defaults + password – falls back to the superuser credentials
-# when not specified. The user record itself is created by
-# pb_hooks/bootstrap.pb.js at serve time (needs a running server, unlike
-# the superuser CLI above).
-#
-# Optional env vars:
+#   PB_SUPERUSER_EMAIL      – email for the superuser
+#   PB_SUPERUSER_PASSWORD   – defaults to random (persisted to ./.env)
 #   PB_TESTUSER_EMAIL       – defaults to PB_SUPERUSER_EMAIL
 #   PB_TESTUSER_PASSWORD    – defaults to PB_SUPERUSER_PASSWORD, else random
 # ---------------------------------------------------------------------------
+if [ -n "${PB_SUPERUSER_EMAIL}" ] && [ -z "${PB_SUPERUSER_PASSWORD}" ]; then
+    PB_SUPERUSER_PASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+    echo "PB_SUPERUSER_PASSWORD=${PB_SUPERUSER_PASSWORD}" >> ./.env
+fi
 : "${PB_TESTUSER_EMAIL:=${PB_SUPERUSER_EMAIL}}"
 : "${PB_TESTUSER_PASSWORD:=${PB_SUPERUSER_PASSWORD}}"
 if [ -n "${PB_TESTUSER_EMAIL}" ] && [ -z "${PB_TESTUSER_PASSWORD}" ]; then
@@ -75,16 +60,21 @@ if [ -n "${PB_TESTUSER_EMAIL}" ] && [ -z "${PB_TESTUSER_PASSWORD}" ]; then
     echo "PB_TESTUSER_PASSWORD=${PB_TESTUSER_PASSWORD}" >> ./.env
 fi
 # Export so the server process (and hooks) inherit them via exec "$@".
-export PB_TESTUSER_EMAIL PB_TESTUSER_PASSWORD
-
-if [ -n "${DEV}" ]; then
-  # Run the dev server in the background
-  bun run dev &
+export PB_SUPERUSER_EMAIL PB_SUPERUSER_PASSWORD PB_TESTUSER_EMAIL PB_TESTUSER_PASSWORD
+if [ -n "${PB_SUPERUSER_EMAIL}" ]; then
+    echo ">>> Superuser: ${PB_SUPERUSER_EMAIL} / ${PB_SUPERUSER_PASSWORD}"
 fi
+
+# NOTE: no `bun run dev` here — the pocketbaseDev vite plugin boots pocketbase
+# during `bun run dev`, so this entrypoint is pocketbase-only.
 
 if [ $# -eq 0 ]; then
   # No command provided, default to pocketbase serve
-  set -- ./pocketbase serve --dev --automigrate=false --http=0.0.0.0:8090 --publicDir=./dist/client
+  set -- ./pocketbase serve --dev --automigrate=false --http=0.0.0.0:${PB_PORT:-8090} --publicDir=./dist/client
 fi
+
+# Apply pending migrations before serve: serve runs with --automigrate=false,
+# and hooks (bootstrap/seeds) require migrated tables at onBootstrap time.
+./pocketbase migrate up
 
 exec "$@"
