@@ -58,6 +58,25 @@ if [ -n "${PB_SUPERUSER_EMAIL}" ]; then
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Test-user defaults + password – falls back to the superuser credentials
+# when not specified. The user record itself is created by
+# pb_hooks/bootstrap.pb.js at serve time (needs a running server, unlike
+# the superuser CLI above).
+#
+# Optional env vars:
+#   PB_TESTUSER_EMAIL       – defaults to PB_SUPERUSER_EMAIL
+#   PB_TESTUSER_PASSWORD    – defaults to PB_SUPERUSER_PASSWORD, else random
+# ---------------------------------------------------------------------------
+: "${PB_TESTUSER_EMAIL:=${PB_SUPERUSER_EMAIL}}"
+: "${PB_TESTUSER_PASSWORD:=${PB_SUPERUSER_PASSWORD}}"
+if [ -n "${PB_TESTUSER_EMAIL}" ] && [ -z "${PB_TESTUSER_PASSWORD}" ]; then
+    PB_TESTUSER_PASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+    echo "PB_TESTUSER_PASSWORD=${PB_TESTUSER_PASSWORD}" >> ./.env
+fi
+# Export so the server process (and hooks) inherit them via exec "$@".
+export PB_TESTUSER_EMAIL PB_TESTUSER_PASSWORD
+
 if [ -n "${DEV}" ]; then
   # Run the dev server in the background
   bun run dev &
