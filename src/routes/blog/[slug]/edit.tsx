@@ -1,17 +1,14 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
-import { Errored, Loading, Show, createEffect, createMemo } from "solid-js";
+import { Errored, Loading, Show, createMemo } from "solid-js";
 import PostEditor from "../../../components/PostEditor";
+import Guard from "../../../components/Guard";
 import { currentUser, isSuperuser, pb } from "../../../lib/pb";
 import type { PostsResponse } from "../../../lib/pocketbase-types";
 import { paths } from "../../../router";
 
 export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
   const navigate = useNavigate();
-  // Effect form (not a body snapshot): runs post-flush with the settled value.
-  createEffect(currentUser, (user) => {
-    if (!user) navigate(paths.login(), { replace: true });
-  });
   const post = createMemo(() =>
     pb.collection("posts").getFirstListItem<PostsResponse>(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       requestKey: `post-edit-${props.params.slug}`,
@@ -24,6 +21,7 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
     return !!me && (isSuperuser() || p.author === me.id);
   });
   return (
+    <Guard>
     <Errored fallback={<main><h1>Not found</h1></main>}>
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
         <main>
@@ -48,5 +46,6 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
         </main>
       </Loading>
     </Errored>
+    </Guard>
   );
 }

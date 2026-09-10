@@ -2,6 +2,7 @@ import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createEffect, createMemo, createSignal, refresh } from "solid-js";
 import { currentUser, pb } from "../../lib/pb";
+import Guard from "../../components/Guard";
 import { bumpData } from "../../lib/refresh";
 import { paths } from "../../router";
 
@@ -14,10 +15,6 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
   const [error, setError] = createSignal<string | null>(null);
   const [saved, setSaved] = createSignal(false);
   const [loaded, setLoaded] = createSignal(false);
-
-  createEffect(currentUser, (user) => {
-    if (!user) navigate(paths.login(), { replace: true });
-  });
 
   const user = createMemo(() =>
     pb.collection("users").getOne(props.params.id, { requestKey: `user-${props.params.id}` }),
@@ -85,6 +82,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
   };
 
   return (
+    <Guard>
     <Errored fallback={<main><h1>Not found</h1></main>}>
       <Loading fallback={<main aria-busy="true">Loading profile…</main>}>
         <main>
@@ -169,5 +167,6 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
         </main>
       </Loading>
     </Errored>
+    </Guard>
   );
 }

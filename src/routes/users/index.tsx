@@ -2,6 +2,7 @@ import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
+import Guard from "../../components/Guard";
 import type { UsersResponse } from "../../lib/pocketbase-types";
 import { bumpData, dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
@@ -67,6 +68,7 @@ export default function UsersIndex() {
   };
 
   return (
+    <Guard admin>
     <main>
       <Title>Users - Solid App</Title>
       <div class="hstack justify-between items-center">
@@ -144,5 +146,6 @@ export default function UsersIndex() {
         </div>
       </Show>
     </main>
+    </Guard>
   );
 }

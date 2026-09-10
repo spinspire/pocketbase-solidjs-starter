@@ -1,7 +1,8 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import { createEffect, createSignal, Show } from "solid-js";
-import { currentUser, pb } from "../lib/pb";
+import { createSignal, Show } from "solid-js";
+import { pb } from "../lib/pb";
+import Guard from "../components/Guard";
 import { paths } from "../router";
 
 export default function Login() {
@@ -12,16 +13,12 @@ export default function Login() {
   const [error, setError] = createSignal<string | null>(null);
 
   // Redirect-away for authed visits lives in the submit handler below.
-  // Reactive bounce: fires on login AND on direct visits while authed.
-  createEffect(currentUser, (user) => {
-    if (user) navigate(paths.blog());
-  });
-
+  // Guard bounces logged-in visits to the blog.
   const submit = async (ev: Event) => {
     ev.preventDefault();
     setError(null);
     try {
-      // Redirect happens via the currentUser effect above.
+      // Redirect happens via the Guard destination effect above.
       await pb.collection(collection()).authWithPassword(email(), password(), { $autoCancel: false });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -29,6 +26,7 @@ export default function Login() {
   };
 
   return (
+    <Guard destination={paths.blog()}>
     <main>
       <Title>Login - Solid App</Title>
       <h1>Login</h1>
@@ -58,5 +56,6 @@ export default function Login() {
         </form>
       </article>
     </main>
+    </Guard>
   );
 }
