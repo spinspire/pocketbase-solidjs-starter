@@ -1,4 +1,5 @@
 import { chromium, test, expect, type Page } from "@playwright/test";
+import PocketBase from "pocketbase";
 
 // Credentials come from the environment (same names as .env). The dev server
 // (`bun run dev`) must be running — it boots PocketBase with seed data.
@@ -9,6 +10,7 @@ if (!email || !password) throw new Error("Set PB_TESTUSER_* or PB_SUPERUSER_* in
 
 const ts = Date.now();
 const title = `e2e post ${ts}`;
+const pb = new PocketBase(process.env.PB_URL || "http://localhost:5173");
 
 async function doLogin(page: Page) {
   await page.goto("/login");
@@ -26,10 +28,25 @@ test("blog logged out", async ({ page }) => {
 
 test("login and logout", async ({ page }) => {
   await doLogin(page);
-  // Avatar links to the profile area, which hosts the Logout button.
   await page.getByRole("link", { name: `Profile for ${email}` }).click();
   await page.getByRole("button", { name: "Logout" }).click();
   await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
+});
+
+test("signup", async ({ page }) => {
+  const signupEmail = `signup-${ts}@test.com`;
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Sign up" }).click();
+  await page.getByLabel("Email").fill(signupEmail);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByLabel("Confirm password").fill(password);
+  await page.getByLabel("Name").fill("E2E Signup");
+  await page.getByRole("button", { name: "Sign up" }).click();
+  await expect(page.getByRole("link", { name: "New post" })).toBeVisible();
+  // Cleanup: re-auth as superuser to delete the test user.
+  await pb.collection("_superusers").authWithPassword(email, password);
+  const u = await pb.collection("users").getFirstListItem(`email="${signupEmail}"`);
+  await pb.collection("users").delete(u.id);
 });
 
 test("create post", async ({ page }) => {
