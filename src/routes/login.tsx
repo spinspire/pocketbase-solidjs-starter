@@ -53,7 +53,7 @@ export default function Login() {
           <button
             type="button"
             role="tab"
-            aria-selected={mode() === "signin" || undefined}
+            aria-selected={mode() === "signin" ? "true" : "false"}
             class={mode() === "signin" ? "" : "ghost"}
             onClick={() => setMode("signin")}
           >
@@ -62,7 +62,7 @@ export default function Login() {
           <button
             type="button"
             role="tab"
-            aria-selected={mode() === "signup" || undefined}
+            aria-selected={mode() === "signup" ? "true" : "false"}
             class={mode() === "signup" ? "" : "ghost"}
             onClick={() => setMode("signup")}
           >
@@ -101,7 +101,7 @@ export default function Login() {
             </label>
           </Show>
           <footer class="hstack justify-end">
-            <button type="submit" aria-busy={loading() || undefined}>
+            <button type="submit" aria-busy={loading() ? "true" : "false"}>
               {loading() ? "Working…" : mode() === "signup" ? "Sign up" : "Log in"}
             </button>
           </footer>

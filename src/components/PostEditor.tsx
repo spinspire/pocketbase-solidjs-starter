@@ -15,6 +15,7 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
   const [cover, setCover] = createSignal<File | undefined>(undefined);
   const [authorId, setAuthorId] = createSignal<string>(initial?.author ?? "");
   const [error, setError] = createSignal<string | null>(null);
+  const [saving, setSaving] = createSignal(false);
 
   // Superusers may attribute the post to any user; regular authors are fixed by the hook.
   const authors = createMemo(async () => {
@@ -42,6 +43,7 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
       setError("Session expired. Please log out and log in again.");
       return;
     }
+    setSaving(true);
     try {
       const data: Record<string, unknown> = { title: title(), excerpt: excerpt(), body: body(), status: status() };
       if (cover()) data.cover = cover();
@@ -54,6 +56,8 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
       props.onSave(saved.id, saved.slug);
     } catch (err) {
       setError(errText(err));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -79,7 +83,7 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
           </select>
         </label>
       </Show>
-      <footer class="hstack justify-end"><button type="submit">Save</button></footer>
+      <footer class="hstack justify-end"><button type="submit" aria-busy={saving() ? "true" : "false"}>{saving() ? "Saving…" : "Save"}</button></footer>
       </form>
     </article>
   );

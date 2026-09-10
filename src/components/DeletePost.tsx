@@ -10,12 +10,14 @@ import { paths } from "../router";
 export default function DeletePost(props: { id: string; title: string }) {
   const navigate = useNavigate();
   const [confirming, setConfirming] = createSignal(false);
+  const [deleting, setDeleting] = createSignal(false);
   const remove = () =>
     alertOnFailure(async () => {
       if (!confirming()) {
         setConfirming(true);
         return;
       }
+      setDeleting(true);
       await pb.collection("posts").delete(props.id, { $autoCancel: false });
       bumpData();
       alerts.success(`Deleted "${props.title}"`, 5000);
@@ -32,8 +34,8 @@ export default function DeletePost(props: { id: string; title: string }) {
     >
       <span class="hstack gap-2 items-center">
         <span>Delete this post?</span>
-        <button type="button" class="small" data-variant="danger" onClick={() => void remove()}>
-          Yes, delete
+        <button type="button" class="small" data-variant="danger" disabled={deleting()} aria-busy={deleting() ? "true" : "false"} onClick={() => void remove()}>
+          {deleting() ? "Deleting…" : "Yes, delete"}
         </button>
         <button type="button" class="ghost small" onClick={() => setConfirming(false)}>
           Cancel

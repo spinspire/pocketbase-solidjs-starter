@@ -1,6 +1,6 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import Guard from "../../components/Guard";
 import type { UsersResponse } from "../../lib/pocketbase-types";
@@ -14,12 +14,8 @@ export default function UsersIndex() {
   const [name, setName] = createSignal("");
   const [error, setError] = createSignal<string | null>(null);
   const [confirmDelete, setConfirmDelete] = createSignal<string | null>(null);
-
-  // Anon → login; regular users → own profile. Superusers stay.
-  createEffect(currentUser, (user) => {
-    if (!user) navigate(paths.login(), { replace: true });
-    else if (user.collectionName !== "_superusers") navigate(paths.users(user.id), { replace: true });
-  });
+  const [creating, setCreating] = createSignal(false);
+  const [deletingId, setDeletingId] = createSignal<string | null>(null);
 
   const users = createMemo(async () => {
     if (!isSuperuser()) return [];
@@ -33,6 +29,7 @@ export default function UsersIndex() {
   const create = async (ev: Event) => {
     ev.preventDefault();
     setError(null);
+    setCreating(true);
     try {
       await pb.collection("users").create(
         { email: email(), password: password(), passwordConfirm: password(), name: name() },
@@ -44,6 +41,8 @@ export default function UsersIndex() {
       bumpData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -54,11 +53,14 @@ export default function UsersIndex() {
     }
     setConfirmDelete(null);
     setError(null);
+    setDeletingId(id);
     try {
       await pb.collection("users").delete(id, { $autoCancel: false });
       bumpData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -102,7 +104,7 @@ export default function UsersIndex() {
                 <input value={name()} onInput={(e) => setName(e.currentTarget.value)} />
               </label>
               <footer class="hstack justify-end">
-                <button type="submit">Create</button>
+                <button type="submit" aria-busy={creating() ? "true" : "false"}>{creating() ? "Creating…" : "Create"}</button>
               </footer>
             </form>
           </article>
@@ -131,9 +133,11 @@ export default function UsersIndex() {
                             class="ghost small"
                             data-variant="danger"
                             type="button"
+                            disabled={deletingId() === u.id}
+                            aria-busy={deletingId() === u.id ? "true" : "false"}
                             onClick={() => void remove(u.id)}
                           >
-                            {confirmDelete() === u.id ? "Confirm?" : "Delete"}
+                            {deletingId() === u.id ? "Deleting…" : confirmDelete() === u.id ? "Confirm?" : "Delete"}
                           </button>
                         </li>
                       </menu>

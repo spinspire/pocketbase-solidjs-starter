@@ -33,10 +33,16 @@ declare module "virtual:file-routes" {
   /** The flat route manifest, in scan order. */
   const routes: readonly [
     {
-      path: "/*404";
+      path: "/users/:id";
       page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/[...404]")>;
-      $$route: FileRouteEagerRef<typeof import("./src/routes/[...404]")>;
+      $component: FileRouteLazyRef<typeof import("./src/routes/users/[id]")>;
+      $$route?: undefined;
+    },
+    {
+      path: "/users/";
+      page: true;
+      $component: FileRouteLazyRef<typeof import("./src/routes/users/index")>;
+      $$route?: undefined;
     },
     {
       path: "/";
@@ -51,27 +57,15 @@ declare module "virtual:file-routes" {
       $$route?: undefined;
     },
     {
-      path: "/blog/";
+      path: "/*404";
       page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/index")>;
-      $$route?: undefined;
+      $component: FileRouteLazyRef<typeof import("./src/routes/[...404]")>;
+      $$route: FileRouteEagerRef<typeof import("./src/routes/[...404]")>;
     },
     {
-      path: "/blog/new";
+      path: "/blog/:slug/";
       page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/new")>;
-      $$route?: undefined;
-    },
-    {
-      path: "/users/:id";
-      page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/users/[id]")>;
-      $$route?: undefined;
-    },
-    {
-      path: "/users/";
-      page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/users/index")>;
+      $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/index")>;
       $$route?: undefined;
     },
     {
@@ -81,9 +75,15 @@ declare module "virtual:file-routes" {
       $$route?: undefined;
     },
     {
-      path: "/blog/:slug/";
+      path: "/blog/";
       page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/index")>;
+      $component: FileRouteLazyRef<typeof import("./src/routes/blog/index")>;
+      $$route?: undefined;
+    },
+    {
+      path: "/blog/new";
+      page: true;
+      $component: FileRouteLazyRef<typeof import("./src/routes/blog/new")>;
       $$route?: undefined;
     },
     {

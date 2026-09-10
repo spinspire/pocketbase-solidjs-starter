@@ -15,6 +15,8 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
   const [error, setError] = createSignal<string | null>(null);
   const [saved, setSaved] = createSignal(false);
   const [loaded, setLoaded] = createSignal(false);
+  const [savingProfile, setSavingProfile] = createSignal(false);
+  const [savingPassword, setSavingPassword] = createSignal(false);
 
   const user = createMemo(() =>
     pb.collection("users").getOne(props.params.id, { requestKey: `user-${props.params.id}` }),
@@ -42,6 +44,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
     ev.preventDefault();
     setError(null);
     setSaved(false);
+    setSavingProfile(true);
     try {
       const data: Record<string, unknown> = { name: name() };
       if (avatar()) data.avatar = avatar();
@@ -53,6 +56,8 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
       bumpData(); // management list shows fresh names
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -60,6 +65,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
     ev.preventDefault();
     setError(null);
     setSaved(false);
+    setSavingPassword(true);
     try {
       const self = currentUser()?.collectionName !== "_superusers";
       const data: Record<string, unknown> = {
@@ -73,6 +79,8 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Password change failed");
+    } finally {
+      setSavingPassword(false);
     }
   };
 
@@ -125,7 +133,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
                   <input type="file" accept="image/*" onChange={(e) => setAvatar(e.currentTarget.files?.[0])} />
                 </label>
                 <footer class="hstack justify-end">
-                  <button type="submit">Save profile</button>
+                  <button type="submit" aria-busy={savingProfile() ? "true" : "false"}>{savingProfile() ? "Saving…" : "Save profile"}</button>
                 </footer>
               </form>
             </article>
@@ -154,7 +162,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
                   />
                 </label>
                 <footer class="hstack justify-end">
-                  <button type="submit">Change password</button>
+                  <button type="submit" aria-busy={savingPassword() ? "true" : "false"}>{savingPassword() ? "Changing…" : "Change password"}</button>
                 </footer>
               </form>
             </article>
