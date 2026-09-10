@@ -56,17 +56,10 @@ export default function BlogIndex() {
       <Show when={currentUser()}>
         <p><a href={paths.blog.new()}>New post</a></p>
       </Show>
-      <div class="vstack gap-4">
+      <div class="post-grid">
         <For each={items()}>
           {(post) => (
             <article class="card post-card">
-              <Show when={post.cover}>
-                <img
-                  src={pb.files.getURL(post, post.cover as string, { thumb: "800x450" })}
-                  alt=""
-                  loading="lazy"
-                />
-              </Show>
               <header class="hstack justify-between items-center">
                 <h3><a href={paths.blog(post.slug as string)()}>{post.title}</a></h3>
                 <span class="hstack gap-2">
@@ -79,6 +72,13 @@ export default function BlogIndex() {
                   })()}
                 </span>
               </header>
+              <Show when={post.cover}>
+                <img
+                  src={pb.files.getURL(post, post.cover as string, { thumb: "800x450" })}
+                  alt=""
+                  loading="lazy"
+                />
+              </Show>
               <p class="text-light">{post.excerpt}</p>
               <footer class="hstack justify-between items-center">
                 <small class="text-light">

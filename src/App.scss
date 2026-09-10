@@ -81,12 +81,39 @@ main {
   text-align: start;
 }
 
-// Blog post cards: cover image full-bleed on top.
+// Blog post cards: cover image below the header, height-capped like detail.
 .post-card > img {
   width: 100%;
+  max-height: 12rem;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius-large) var(--radius-large) 0 0;
+  border-radius: var(--radius-medium);
+}
+
+// Responsive card grid: 1 column on phones, up to 3 on desktop.
+// Cards stretch to equal height; footers pin to the bottom.
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--space-4);
+}
+
+.post-grid .post-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.post-grid .post-card > footer {
+  margin-top: auto;
+}
+
+// Detail page cover: contained, never taller than the viewport third.
+.post-cover {
+  width: 100%;
+  max-height: 24rem;
+  object-fit: cover;
+  border-radius: var(--radius-large);
 }
 
 .logo {

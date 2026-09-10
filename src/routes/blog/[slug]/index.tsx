@@ -40,7 +40,7 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
           </div>
           <h1>{post().title}</h1>
           <p class="text-light">{post().publishedAt ?? post().created} · {(post().expand as Record<string, { name?: string }>)?.author?.name ?? "Unknown"}</p>
-          <Show when={coverUrl()}>{(url) => <img src={url()} alt="" />}</Show>
+          <Show when={coverUrl()}>{(url) => <img src={url()} alt="" class="post-cover" />}</Show>
           <p>{post().body}</p>
         </main>
       </Loading>
