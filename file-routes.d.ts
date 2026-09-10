@@ -57,12 +57,6 @@ declare module "virtual:file-routes" {
       $$route?: undefined;
     },
     {
-      path: "/blog/";
-      page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/index")>;
-      $$route?: undefined;
-    },
-    {
       path: "/blog/new";
       page: true;
       $component: FileRouteLazyRef<typeof import("./src/routes/blog/new")>;
@@ -81,15 +75,15 @@ declare module "virtual:file-routes" {
       $$route?: undefined;
     },
     {
-      path: "/blog/:slug/edit";
-      page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/edit")>;
-      $$route?: undefined;
-    },
-    {
       path: "/blog/:slug/";
       page: true;
       $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/index")>;
+      $$route?: undefined;
+    },
+    {
+      path: "/blog/";
+      page: true;
+      $component: FileRouteLazyRef<typeof import("./src/routes/blog/index")>;
       $$route?: undefined;
     }
   ];
@@ -167,14 +161,6 @@ declare module "virtual:file-routes" {
       id: "/blog/:slug/";
       page: true;
       $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/index")>;
-      $$route?: undefined;
-      children?: undefined;
-    },
-    {
-      path: "/blog/:slug/edit";
-      id: "/blog/:slug/edit";
-      page: true;
-      $component: FileRouteLazyRef<typeof import("./src/routes/blog/[slug]/edit")>;
       $$route?: undefined;
       children?: undefined;
     }

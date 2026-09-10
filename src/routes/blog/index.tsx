@@ -1,17 +1,31 @@
 import { Title } from "@solidjs/meta";
 import { Errored, For, Show, createMemo, createSignal } from "solid-js";
-import type { RecordModel } from "pocketbase";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import { dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
 const PER_PAGE = 10;
 
-async function fetchPublished(page: number) {
+function fmtDate(iso: string | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+async function fetchPosts(page: number, user: { id: string; collectionName: string } | null) {
   dataRev();
+  // One list for everyone; visibility IS the filter. Drafts render
+  // identically except for their badge.
+  const filter = !user
+    ? "status = 'published'"
+    : user.collectionName === "_superusers"
+      ? ""
+      : pb.filter("status = 'published' || author = {:author}", { author: user.id });
   return pb.collection("posts").getList(page, PER_PAGE, {
-    filter: "status = 'published'",
-    sort: "-publishedAt,-created",
+    filter,
+    sort: "-created",
     expand: "author",
     requestKey: `posts-list-p${page}`,
   });
@@ -22,23 +36,15 @@ export default function BlogIndex() {
 
   // Async memos: no manual signal writes, so no owned-scope violations.
   // Reads suspend under the App <Loading> boundary until settled.
-  const result = createMemo(() => fetchPublished(page()));
-  const drafts = createMemo(async () => {
-    const user = currentUser();
-    if (!user) return [];
-    dataRev();
-    // Superusers see every draft; authors see their own. Parameterized —
-    // never interpolate ids into filter strings.
-    const filter =
-      isSuperuser()
-        ? "status = 'draft'"
-        : pb.filter("status = 'draft' && author = {:author}", { author: user.id });
-    return (await pb.collection("posts").getFullList({
-      filter,
-      sort: "-updated",
-      requestKey: `posts-drafts-${user.id}`,
-    })) as RecordModel[];
-  });
+  const result = createMemo(() =>
+    fetchPosts(
+      page(),
+      (() => {
+        const u = currentUser();
+        return u ? { id: u.id, collectionName: u.collectionName ?? "" } : null;
+      })(),
+    ),
+  );
 
   const items = createMemo(() => result()?.items ?? []);
 
@@ -49,29 +55,46 @@ export default function BlogIndex() {
       <Errored fallback={<div role="alert">Couldn't load posts. Try again later.</div>}>
       <Show when={currentUser()}>
         <p><a href={paths.blog.new()}>New post</a></p>
-        <Show when={drafts().length > 0}>
-          <h2>{isSuperuser() ? "All drafts" : "Your drafts"}</h2>
-          <For each={drafts()}>
-            {(d) => (
-              <article class="card">
-                <header class="hstack justify-between">
-                  <h3>{d.title}</h3>
-                  <span class="badge" data-variant="warning">Draft</span>
-                </header>
-                <footer><a href={`${paths.blog(d.slug as string)()}/edit`}>Edit</a></footer>
-              </article>
-            )}
-          </For>
-        </Show>
       </Show>
-      <For each={items()}>
-        {(post) => (
-          <article class="card">
-            <header><h3><a href={paths.blog(post.slug as string)()}>{post.title}</a></h3></header>
-            <p class="text-light">{post.excerpt}</p>
-          </article>
-        )}
-      </For>
+      <div class="vstack gap-4">
+        <For each={items()}>
+          {(post) => (
+            <article class="card post-card">
+              <Show when={post.cover}>
+                <img
+                  src={pb.files.getURL(post, post.cover as string, { thumb: "800x450" })}
+                  alt=""
+                  loading="lazy"
+                />
+              </Show>
+              <header class="hstack justify-between items-center">
+                <h3><a href={paths.blog(post.slug as string)()}>{post.title}</a></h3>
+                <span class="hstack gap-2">
+                  <Show when={post.status === "draft"}>
+                    <span class="badge" data-variant="warning">Draft</span>
+                  </Show>
+                  {(() => {
+                    const date = fmtDate(post.status === "draft" ? post.updated : (post.publishedAt ?? post.created));
+                    return date ? <span class="badge">{date}</span> : null;
+                  })()}
+                </span>
+              </header>
+              <p class="text-light">{post.excerpt}</p>
+              <footer class="hstack justify-between items-center">
+                <small class="text-light">
+                  {(post.expand as Record<string, { name?: string; email?: string }> | undefined)?.author?.name ?? "Unknown"}
+                </small>
+                <span class="hstack gap-2">
+                  <Show when={isSuperuser() || post.author === currentUser()?.id}>
+                    <a href={`${paths.blog(post.slug as string)()}?edit=1`} class="button outline small">Edit</a>
+                  </Show>
+                  <a href={paths.blog(post.slug as string)()} class="button ghost small">Read →</a>
+                </span>
+              </footer>
+            </article>
+          )}
+        </For>
+      </div>
       </Errored>
       <menu class="buttons">
         <li><button class="outline small" disabled={page() <= 1} onClick={() => setPage(page() - 1)}>← Prev</button></li>

@@ -1,21 +1,22 @@
-import { createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show, untrack } from "solid-js";
 import type { RecordModel } from "pocketbase";
-import { currentUser, pb } from "../lib/pb";
+import { isSuperuser, pb } from "../lib/pb";
 import { bumpData } from "../lib/refresh";
 
 export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
 
 export default function PostEditor(props: { initial?: RecordModel; onSave: (id: string, slug: string) => void }) {
-  const [title, setTitle] = createSignal(props.initial?.title ?? "");
-  const [excerpt, setExcerpt] = createSignal(props.initial?.excerpt ?? "");
-  const [body, setBody] = createSignal(props.initial?.body ?? "");
-  const [status, setStatus] = createSignal<"draft" | "published">(props.initial?.status ?? "draft");
+  // One-time snapshot by design: form state must not track the record.
+  const initial = untrack(() => props.initial);
+  const [title, setTitle] = createSignal(initial?.title ?? "");
+  const [excerpt, setExcerpt] = createSignal(initial?.excerpt ?? "");
+  const [body, setBody] = createSignal(initial?.body ?? "");
+  const [status, setStatus] = createSignal<"draft" | "published">(initial?.status ?? "draft");
   const [cover, setCover] = createSignal<File | undefined>(undefined);
-  const [authorId, setAuthorId] = createSignal<string>(props.initial?.author ?? "");
+  const [authorId, setAuthorId] = createSignal<string>((initial?.author as string) ?? "");
   const [error, setError] = createSignal<string | null>(null);
 
   // Superusers may attribute the post to any user; regular authors are fixed by the hook.
-  const isSuperuser = createMemo(() => currentUser()?.collectionName === "_superusers");
   const authors = createMemo(async () => {
     if (!isSuperuser()) return [];
     return (await pb.collection("users").getFullList({ sort: "email", requestKey: "users-for-author-pick" })) as RecordModel[];

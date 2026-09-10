@@ -1,11 +1,13 @@
 import { Title } from "@solidjs/meta";
-import type { RouteProps } from "@solidjs/router";
-import { Errored, Loading, Show, createMemo } from "solid-js";
-import { pb } from "../../../lib/pb";
+import { useSearchParams, type RouteProps } from "@solidjs/router";
+import { Errored, Loading, Show, createEffect, createMemo, createSignal } from "solid-js";
+import PostEditor from "../../../components/PostEditor";
+import { currentUser, isSuperuser, pb } from "../../../lib/pb";
 import { dataRev } from "../../../lib/refresh";
 import type { Router } from "../../../router";
 
 export default function PostDetail(props: RouteProps<"/blog/:slug">) {
+  const [search, setSearch] = useSearchParams();
   const post = createMemo(() => {
     dataRev();
     return pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
@@ -17,19 +19,60 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
     const p = post();
     return p?.cover ? pb.files.getURL(p, p.cover, { thumb: "800x0" }) : null;
   });
+  // Superusers edit anything, authors their own. Editing happens inline —
+  // no separate edit route. `?edit=1` opens the editor directly.
+  const canEdit = createMemo(() => {
+    const me = currentUser();
+    const p = post();
+    return !!me && (isSuperuser() || p.author === me.id);
+  });
+  const [editing, setEditing] = createSignal(search.edit === "1");
+  // Fresh slug → fresh editor state (no React-style key prop in Solid).
+  createEffect(
+    () => props.params.slug,
+    () => {
+      setEditing(search.edit === "1");
+    },
+  );
+  const startEdit = () => {
+    setSearch({ edit: "1" });
+    setEditing(true);
+  };
+  const stopEdit = () => {
+    setSearch({ edit: undefined });
+    setEditing(false);
+  };
 
   return (
     <Errored fallback={<main><h1>Not found</h1><p>No post with this slug.</p></main>}>
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
         <main>
           <Title>{`${post().title} - Solid App`}</Title>
-          <Show when={post().status === "draft"}>
-            <span class="badge" data-variant="warning">Draft</span>
-          </Show>
+          <div class="hstack gap-2 items-center">
+            <Show when={post().status === "draft"}>
+              <span class="badge" data-variant="warning">Draft</span>
+            </Show>
+            <Show when={canEdit()}>
+              <Show
+                when={editing()}
+                fallback={<button type="button" class="outline small" onClick={startEdit}>Edit post</button>}
+              >
+                <button type="button" class="outline small" onClick={stopEdit}>View post</button>
+              </Show>
+            </Show>
+          </div>
           <h1>{post().title}</h1>
           <p class="text-light">{post().publishedAt ?? post().created} · {(post().expand as Record<string, { name?: string }>)?.author?.name ?? "Unknown"}</p>
           <Show when={coverUrl()}>{(url) => <img src={url()} alt="" />}</Show>
-          <p>{post().body}</p>
+          <Show
+            when={editing() && canEdit()}
+            fallback={<p>{post().body}</p>}
+          >
+            <PostEditor
+              initial={post()}
+              onSave={() => stopEdit()}
+            />
+          </Show>
         </main>
       </Loading>
     </Errored>

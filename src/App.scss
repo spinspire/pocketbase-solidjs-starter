@@ -62,6 +62,9 @@ nav {
 }
 
 main {
+  width: 100%;
+  max-width: 60rem;
+  margin-inline: auto;
   padding: 3rem 1rem;
 }
 
@@ -71,6 +74,19 @@ main {
   max-width: 28rem;
   margin-inline: auto;
   text-align: start;
+}
+
+// Card body text reads left-aligned like the rest of the card.
+.card > p {
+  text-align: start;
+}
+
+// Blog post cards: cover image full-bleed on top.
+.post-card > img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-large) var(--radius-large) 0 0;
 }
 
 .logo {
