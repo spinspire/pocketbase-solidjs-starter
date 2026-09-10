@@ -1,6 +1,6 @@
-import { createSignal, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import type { RecordModel } from "pocketbase";
-import { pb } from "../lib/pb";
+import { currentUser, pb } from "../lib/pb";
 
 export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
 
@@ -10,11 +10,22 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
   const [body, setBody] = createSignal(props.initial?.body ?? "");
   const [status, setStatus] = createSignal<"draft" | "published">(props.initial?.status ?? "draft");
   const [cover, setCover] = createSignal<File | undefined>(undefined);
+  const [authorId, setAuthorId] = createSignal<string>(props.initial?.author ?? "");
   const [error, setError] = createSignal<string | null>(null);
+
+  // Superusers may attribute the post to any user; regular authors are fixed by the hook.
+  const isSuperuser = createMemo(() => currentUser()?.collectionName === "_superusers");
+  const authors = createMemo(async () => {
+    if (!isSuperuser()) return [];
+    return (await pb.collection("users").getFullList({ sort: "email", requestKey: "users-for-author-pick" })) as RecordModel[];
+  });
 
   // PocketBase wraps failures in ClientResponseError: top message + per-field detail.
   const errText = (err: unknown): string => {
     if (!(err instanceof Error)) return "Save failed";
+    const status = (err as { status?: number })?.status;
+    if (status === 401 || status === 403)
+      return "Not authorized. Your session may have expired — log out and log in again.";
     const fields = (err as { data?: { data?: Record<string, { message?: string }> } }).data?.data;
     const first = fields ? Object.entries(fields)[0] : undefined;
     return first?.[1]?.message ? `${err.message} (${first[0]}: ${first[1].message})` : err.message;
@@ -23,9 +34,16 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
   const submit = async (ev: Event) => {
     ev.preventDefault();
     setError(null);
+    // The badge renders from the stored record even with an expired token —
+    // catch that here instead of surfacing a confusing rule failure.
+    if (!pb.authStore.isValid) {
+      setError("Session expired. Please log out and log in again.");
+      return;
+    }
     try {
       const data: Record<string, unknown> = { title: title(), excerpt: excerpt(), body: body(), status: status() };
       if (cover()) data.cover = cover();
+      if (isSuperuser() && authorId()) data.author = authorId();
       // Mutations must never autocancel: a second save would abort the first.
       const saved = props.initial
         ? await pb.collection("posts").update(props.initial.id, data, { $autoCancel: false })
@@ -49,6 +67,14 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
         </select>
       </label>
       <label data-field>Cover<input type="file" accept="image/*" onChange={(e) => setCover(e.currentTarget.files?.[0])} /></label>
+      <Show when={isSuperuser()}>
+        <label data-field>Author
+          <select value={authorId()} onChange={(e) => setAuthorId(e.currentTarget.value)}>
+            <option value="">— none —</option>
+            <For each={authors()}>{(a) => <option value={a.id}>{a.email}</option>}</For>
+          </select>
+        </label>
+      </Show>
       <footer class="hstack justify-end"><button type="submit">Save</button></footer>
     </form>
   );

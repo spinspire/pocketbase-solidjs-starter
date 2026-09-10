@@ -9,10 +9,16 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
   const navigate = useNavigate();
   if (!currentUser()) navigate(paths.login(), { replace: true });
   const post = createMemo(() =>
-    pb.collection("posts").getFirstListItem(`slug = '${props.params.slug}'`, {
+    pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       requestKey: `post-edit-${props.params.slug}`,
     }),
   );
+  // Superusers edit anything; authors edit their own posts (any status).
+  const canEdit = createMemo(() => {
+    const p = post();
+    const me = currentUser();
+    return !!me && (me.collectionName === "_superusers" || p.author === me.id);
+  });
   return (
     <Errored fallback={<main><h1>Not found</h1></main>}>
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
@@ -22,8 +28,15 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
           {/* Keyed Show resolves the async value in a suspending scope:
               passing post() directly as a prop reads it in PostEditor's
               untracked body (PENDING_ASYNC_UNTRACKED_READ). */}
-          <Show when={post()} keyed>
-            {(p) => <PostEditor initial={p} onSave={(_id, slug) => navigate(paths.blog(slug)())} />}
+          <Show
+            when={canEdit()}
+            fallback={
+              <div role="alert">
+                You don't have permission to edit this post. <a href={paths.blog(post().slug as string)()}>Back to post</a>
+              </div>
+            }
+          >
+            <PostEditor initial={post()} onSave={(_id, slug) => navigate(paths.blog(slug)())} />
           </Show>
         </main>
       </Loading>

@@ -6,7 +6,7 @@ import type { Router } from "../../../router";
 
 export default function PostDetail(props: RouteProps<"/blog/:slug">) {
   const post = createMemo(() =>
-    pb.collection("posts").getFirstListItem(`slug = '${props.params.slug}'`, {
+    pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       expand: "author",
       requestKey: `post-${props.params.slug}`,
     }),
