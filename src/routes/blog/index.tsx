@@ -5,6 +5,7 @@ import { renderMarkdown } from "../../lib/markdown";
 import { dataRev } from "../../lib/refresh";
 import Paginator from "../../components/Paginator";
 import { paths } from "../../router";
+import styles from "./index.module.scss";
 
 const PER_PAGE = 15; // multiple of the 3-column grid
 
@@ -59,10 +60,10 @@ export default function BlogIndex() {
         <p><a href={paths.blog.new()}>New post</a></p>
       </Show>
       <Paginator page={page()} totalPages={result()?.totalPages ?? 1} onPage={setPage} />
-      <div class="post-grid">
+      <div class={styles.grid}>
         <For each={items()}>
           {(post) => (
-            <article class="card post-card">
+            <article class="card">
               <header class="hstack justify-between items-center">
                 <h3><a href={paths.blog(post.slug as string)()}>{post.title}</a></h3>
                 <span class="hstack gap-2">

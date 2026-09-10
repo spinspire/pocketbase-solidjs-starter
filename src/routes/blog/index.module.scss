@@ -1,0 +1,25 @@
+// Blog list: layout lives here, look comes from oat. Nesting keeps the
+// markup to one class (`.grid`) — everything else is semantic elements.
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--space-4);
+
+  article {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+
+    img {
+      width: 100%;
+      max-height: 12rem;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: var(--radius-medium);
+    }
+
+    footer {
+      margin-top: auto;
+    }
+  }
+}
