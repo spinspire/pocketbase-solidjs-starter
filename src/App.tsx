@@ -22,7 +22,7 @@ export default function App() {
     <Router>
       {(props) => (
         <>
-          <Title>Solid App</Title>
+          <Title>PocketBase SolidJS Starter</Title>
           <nav>
             <For each={NAV_LINKS}>
               {(link) => (

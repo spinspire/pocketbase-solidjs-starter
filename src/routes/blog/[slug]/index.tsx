@@ -32,7 +32,7 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
     <Errored fallback={<main><h1>Not found</h1><p>No post with this slug.</p></main>}>
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
         <main>
-          <Title>{`${post().title} - Solid App`}</Title>
+          <Title>{`${post().title} - PocketBase SolidJS`}</Title>
           <div class="hstack gap-2 items-center">
             <Show when={post().status === "draft"}>
               <span class="badge" data-variant="warning">Draft</span>

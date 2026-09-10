@@ -96,7 +96,7 @@ export default function BlogIndex() {
 
   return (
     <main>
-      <Title>Blog - Solid App</Title>
+      <Title>Blog - PocketBase SolidJS</Title>
       <h1>Blog</h1>
       <Errored fallback={<div role="alert">Couldn't load posts. Try again later.</div>}>
       <Show when={currentUser()}>

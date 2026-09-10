@@ -46,7 +46,7 @@ export default function Login() {
   return (
     <Guard destination={paths.blog()}>
     <main>
-      <Title>Login - Solid App</Title>
+      <Title>Login - PocketBase SolidJS</Title>
       <h1>{mode() === "signup" ? "Sign up" : "Log in"}</h1>
       <article class="card form-card">
         <nav class="hstack gap-2" role="tablist">

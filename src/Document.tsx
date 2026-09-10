@@ -7,7 +7,7 @@ export default function Document(props: ParentProps) {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="SolidJS 2.0 blog starter with PocketBase" />
+        <meta name="description" content="PocketBase SolidJS Starter — fine-grained reactivity, oat-css, JS hooks" />
         <meta name="theme-color" content="#1e293b" />
         <link rel="icon" href="/favicon.ico" />
         <HydrationScript />

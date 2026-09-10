@@ -1,9 +1,9 @@
-name: hello-solid
+name: pocketbase-solidjs
 
 services:
   app:
     build: .
-    image: hello-solid-app
+    image: pocketbase-solidjs-app
     ports:
       - "${PB_PUBLISH_PORT:-8090}:8090"
     user: "${UID:-1000}:${GID:-1000}"

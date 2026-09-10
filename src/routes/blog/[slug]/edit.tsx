@@ -25,7 +25,7 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
     <Errored fallback={<main><h1>Not found</h1></main>}>
       <Loading fallback={<main aria-busy="true">Loading post…</main>}>
         <main>
-          <Title>Edit post - Solid App</Title>
+          <Title>Edit post - PocketBase SolidJS</Title>
           <div class="hstack justify-between items-center">
             <h1>Edit post</h1>
             <a href={paths.blog(props.params.slug)()} class="button ghost small">← Back to post</a>

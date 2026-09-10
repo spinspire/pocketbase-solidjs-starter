@@ -94,7 +94,7 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
     <Errored fallback={<main><h1>Not found</h1></main>}>
       <Loading fallback={<main aria-busy="true">Loading profile…</main>}>
         <main>
-          <Title>{`User ${user().email} - Solid App`}</Title>
+          <Title>{`User ${user().email} - PocketBase SolidJS`}</Title>
           <div class="hstack justify-between items-center">
             <h1>{user().name || user().email}</h1>
             <menu class="buttons">

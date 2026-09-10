@@ -9,7 +9,7 @@ export default function NewPost() {
   return (
     <Guard>
       <main>
-        <Title>New post - Solid App</Title>
+        <Title>New post - PocketBase SolidJS</Title>
         <h1>New post</h1>
         <PostEditor onSave={(_id, slug) => navigate(paths.blog(slug)())} />
       </main>

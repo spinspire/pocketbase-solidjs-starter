@@ -1,7 +1,7 @@
 {
-  "name": "example-with-sass",
+  "name": "pocketbase-solidjs-starter",
   "version": "0.0.0",
-  "description": "",
+  "description": "PocketBase SolidJS Starter — fine-grained reactivity, no re-renders, JS hooks, oat-css",
   "type": "module",
   "scripts": {
     "start": "vite",

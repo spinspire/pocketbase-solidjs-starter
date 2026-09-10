@@ -72,7 +72,7 @@ export default function UsersIndex() {
   return (
     <Guard admin>
     <main>
-      <Title>Users - Solid App</Title>
+      <Title>Users - PocketBase SolidJS</Title>
       <div class="hstack justify-between items-center">
         <h1>Users</h1>
         <menu class="buttons">

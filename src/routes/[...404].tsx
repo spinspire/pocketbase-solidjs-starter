@@ -12,7 +12,7 @@ export const route = {
 export default function NotFound() {
   return (
     <main>
-      <Title>Not Found - Solid App</Title>
+      <Title>Not Found - PocketBase SolidJS</Title>
       <h1>Page Not Found</h1>
       <p>
         Visit{' '}
