@@ -14,7 +14,11 @@ export default defineConfig({
     fileRoutes({ types: true }),
   ],
   server: {
-    port: 3000,
+    port: 5173,
+    proxy: {
+      '/api': 'http://localhost:8090',
+      '/_': 'http://localhost:8090',
+    }
   },
   test: {
     environment: 'jsdom',

@@ -26,3 +26,7 @@ tmp/
 # System Files
 .DS_Store
 Thumbs.db
+
+# pocketbase
+/pb_data
+/pocketbase
