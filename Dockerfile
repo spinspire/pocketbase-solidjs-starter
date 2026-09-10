@@ -36,10 +36,14 @@ RUN apk --no-cache add ca-certificates tini && \
     mkdir -p /app/pb_data /app/dist /app/pb_hooks /app/pb_migrations && \
     chown -R app:app /app && \
     chmod g+w /app
-COPY --from=pb /usr/local/bin/pocketbase /usr/local/bin/pocketbase
-COPY --from=client /app/dist ./dist
-COPY --chown=app:app entrypoint.sh pb_hooks/ pb_migrations/
-ENV PB_BIN=/usr/local/bin/pocketbase
 WORKDIR /app
+COPY --from=pb /usr/local/bin/pocketbase ./pocketbase
+COPY --chown=app:app --from=client /app/dist ./dist
+COPY --chown=app:app entrypoint.sh ./
+COPY --chown=app:app pb_hooks ./pb_hooks
+COPY --chown=app:app pb_migrations ./pb_migrations
+# Binary lives next to its data/hooks/migrations — PocketBase resolves those
+# paths relative to the executable, not the working directory.
+ENV PB_BIN=/app/pocketbase
 USER app
 ENTRYPOINT ["tini", "--", "./entrypoint.sh"]

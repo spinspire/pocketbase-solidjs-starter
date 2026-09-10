@@ -37,17 +37,18 @@ onBootstrap((e) => {
     return;
   }
   const existing = e.app.findRecordsByFilter("users", "email = {:email}", "", 1, 0, { email });
-  if (existing.length > 0) return;
-  try {
-    const collection = e.app.findCollectionByNameOrId("users");
-    const record = new Record(collection);
-    record.set("email", email);
-    record.set("password", password);
-    record.set("passwordConfirm", password);
-    e.app.save(record);
-    console.log(`[bootstrap] test user created: ${email}`);
-  } catch (err) {
-    console.log("[bootstrap] test user failed:", err);
+  if (existing.length === 0) {
+    try {
+      const collection = e.app.findCollectionByNameOrId("users");
+      const record = new Record(collection);
+      record.set("email", email);
+      record.set("password", password);
+      record.set("passwordConfirm", password);
+      e.app.save(record);
+      console.log(`[bootstrap] test user created: ${email}`);
+    } catch (err) {
+      console.log("[bootstrap] test user failed:", err);
+    }
   }
 
   const slugify = (title) => {
@@ -60,8 +61,15 @@ onBootstrap((e) => {
 
   // --- demo posts (only when empty) ---
   // Table existence is guaranteed: entrypoint.sh runs `migrate up` before
-  // serve (serve itself uses --automigrate=false).
-  const anyPosts = e.app.findRecordsByFilter("posts", "", "", 1, 0, {});
+  // serve (serve itself uses --automigrate=false). Guarded anyway so a
+  // missing table can't take down onBootstrap.
+  let anyPosts = [];
+  try {
+    anyPosts = e.app.findRecordsByFilter("posts", "", "", 1, 0, {});
+  } catch (err) {
+    console.log("[bootstrap] posts table not ready, skipping seed:", err);
+    return;
+  }
   if (anyPosts.length > 0) return;
 
   const authorEmail = $os.getenv("PB_TESTUSER_EMAIL") || $os.getenv("PB_SUPERUSER_EMAIL");

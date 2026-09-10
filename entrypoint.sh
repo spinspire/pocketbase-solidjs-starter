@@ -71,12 +71,15 @@ fi
 # during `bun run dev`, so this entrypoint is pocketbase-only.
 
 if [ $# -eq 0 ]; then
-  # No command provided, default to pocketbase serve
-  set -- "${PB_BIN}" serve --dev --automigrate=false --http=0.0.0.0:${PB_PORT:-8090} --publicDir=./dist/client
+  # No command provided, default to pocketbase serve.
+  # --hooksDir/--migrationsDir are explicit because v0.40 gives them no
+  # default (hooks silently never load without them). Paths are relative to
+  # /app, where this script cds and where the binary lives in Docker.
+  set -- "${PB_BIN}" serve --dev --automigrate=false --dir=./pb_data --hooksDir=./pb_hooks --migrationsDir=./pb_migrations --http=0.0.0.0:${PB_PORT:-8090} --publicDir=./dist/client
 fi
 
 # Apply pending migrations before serve: serve runs with --automigrate=false,
 # and hooks (bootstrap/seeds) require migrated tables at onBootstrap time.
-"${PB_BIN}" migrate up
+"${PB_BIN}" migrate up --dir=./pb_data --migrationsDir=./pb_migrations
 
 exec "$@"
