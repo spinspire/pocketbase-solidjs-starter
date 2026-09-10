@@ -34,3 +34,6 @@ Thumbs.db
 # playwright
 /test-results
 /playwright-report
+
+# generated
+file-routes.d.ts
