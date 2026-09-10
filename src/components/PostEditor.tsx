@@ -1,6 +1,7 @@
 import { createMemo, createSignal, For, Show } from "solid-js";
 import type { RecordModel } from "pocketbase";
 import { currentUser, pb } from "../lib/pb";
+import { bumpData } from "../lib/refresh";
 
 export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
 
@@ -48,6 +49,7 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
       const saved = props.initial
         ? await pb.collection("posts").update(props.initial.id, data, { $autoCancel: false })
         : await pb.collection("posts").create(data, { $autoCancel: false });
+      bumpData(); // invalidate list/detail/users memos everywhere
       props.onSave(saved.id, saved.slug as string);
     } catch (err) {
       setError(errText(err));

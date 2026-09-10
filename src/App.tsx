@@ -16,7 +16,7 @@ export default function App() {
           <Title>Solid App</Title>
           <nav>
             <a href={paths()}>Home</a>
-            <a href={paths.users(1)}>Users</a>
+            <a href={paths.users()}>Users</a>
             <a href={paths.blog()}>Blog</a>
             <Show when={currentUser()} fallback={<a href={paths.login()}>Login</a>}>
               <UserBadge />

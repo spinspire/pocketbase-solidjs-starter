@@ -2,11 +2,13 @@ import { Title } from "@solidjs/meta";
 import { Errored, For, Show, createMemo, createSignal } from "solid-js";
 import type { RecordModel } from "pocketbase";
 import { currentUser, pb } from "../../lib/pb";
+import { dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
 const PER_PAGE = 10;
 
 async function fetchPublished(page: number) {
+  dataRev();
   return pb.collection("posts").getList(page, PER_PAGE, {
     filter: "status = 'published'",
     sort: "-publishedAt,-created",
@@ -24,6 +26,7 @@ export default function BlogIndex() {
   const drafts = createMemo(async () => {
     const user = currentUser();
     if (!user) return [];
+    dataRev();
     // Superusers see every draft; authors see their own. Parameterized —
     // never interpolate ids into filter strings.
     const filter =

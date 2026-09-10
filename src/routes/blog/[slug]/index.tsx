@@ -2,15 +2,17 @@ import { Title } from "@solidjs/meta";
 import type { RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createMemo } from "solid-js";
 import { pb } from "../../../lib/pb";
+import { dataRev } from "../../../lib/refresh";
 import type { Router } from "../../../router";
 
 export default function PostDetail(props: RouteProps<"/blog/:slug">) {
-  const post = createMemo(() =>
-    pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
+  const post = createMemo(() => {
+    dataRev();
+    return pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       expand: "author",
       requestKey: `post-${props.params.slug}`,
-    }),
-  );
+    });
+  });
   const coverUrl = createMemo(() => {
     const p = post();
     return p?.cover ? pb.files.getURL(p, p.cover, { thumb: "800x0" }) : null;
