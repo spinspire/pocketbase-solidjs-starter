@@ -1,0 +1,16 @@
+# Local customisations. Copy to docker-compose.override.yml (git-ignored)
+# and uncomment what you need. Never commit the override file itself.
+services:
+  app:
+    # Expose PocketBase locally (base compose publishes no ports).
+    #ports:
+    #  - "127.0.0.1:8090:8090"
+
+    # Live-reload hooks/migrations from source instead of the image copy.
+    #volumes:
+    #  - ./pb_hooks:/app/pb_hooks:ro
+    #  - ./pb_migrations:/app/pb_migrations:ro
+
+    # Persist data on the host instead of the named volume.
+    #volumes:
+    #  - ./pb_data:/app/pb_data
