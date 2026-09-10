@@ -1,12 +1,16 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
+import { createEffect } from "solid-js";
 import PostEditor from "../../components/PostEditor";
 import { currentUser } from "../../lib/pb";
 import { paths } from "../../router";
 
 export default function NewPost() {
   const navigate = useNavigate();
-  if (!currentUser()) navigate(paths.login(), { replace: true });
+  // Effect form (not a body snapshot): runs post-flush with the settled value.
+  createEffect(currentUser, (user) => {
+    if (!user) navigate(paths.login(), { replace: true });
+  });
   return (
     <main>
       <Title>New post - Solid App</Title>

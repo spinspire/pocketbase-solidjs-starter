@@ -1,13 +1,16 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
-import { Errored, Loading, Show, createMemo } from "solid-js";
+import { Errored, Loading, Show, createEffect, createMemo } from "solid-js";
 import PostEditor from "../../../components/PostEditor";
 import { currentUser, pb } from "../../../lib/pb";
 import { paths } from "../../../router";
 
 export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
   const navigate = useNavigate();
-  if (!currentUser()) navigate(paths.login(), { replace: true });
+  // Effect form (not a body snapshot): runs post-flush with the settled value.
+  createEffect(currentUser, (user) => {
+    if (!user) navigate(paths.login(), { replace: true });
+  });
   const post = createMemo(() =>
     pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       requestKey: `post-edit-${props.params.slug}`,

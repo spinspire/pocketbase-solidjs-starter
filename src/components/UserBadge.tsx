@@ -24,11 +24,11 @@ export default function UserBadge() {
             </figure>
           </button>
           <dialog ref={dialog} closedby="any">
-            <article>
-              <header>
-                <h3>{user().email}</h3>
-                <p class="text-light">{user().collectionName === "_superusers" ? "Superuser" : "Author"}</p>
-              </header>
+            <header>
+              <h3>{user().email}</h3>
+              <p>{user().collectionName === "_superusers" ? "Superuser" : "Author"}</p>
+            </header>
+            <div>
               <dl>
                 <div class="hstack justify-between">
                   <dt class="text-light">User ID</dt>
@@ -39,15 +39,15 @@ export default function UserBadge() {
                   <dd>{user().verified ? "Yes" : "No"}</dd>
                 </div>
               </dl>
-              <footer class="hstack justify-end">
-                <button type="button" class="outline" onClick={() => dialog.close()}>
-                  Close
-                </button>
-                <button type="button" data-variant="secondary" onClick={logout}>
-                  Logout
-                </button>
-              </footer>
-            </article>
+            </div>
+            <footer>
+              <button type="button" class="outline" onClick={() => dialog.close()}>
+                Close
+              </button>
+              <button type="button" data-variant="secondary" onClick={logout}>
+                Logout
+              </button>
+            </footer>
           </dialog>
         </>
       )}

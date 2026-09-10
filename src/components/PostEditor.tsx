@@ -55,8 +55,9 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
   };
 
   return (
-    <form onSubmit={submit}>
-      <Show when={error()}><div role="alert">{error()}</div></Show>
+    <article class="card form-card">
+      <form onSubmit={submit}>
+        <Show when={error()}><div role="alert">{error()}</div></Show>
       <label data-field>Title<input required value={title()} onInput={(e) => setTitle(e.currentTarget.value)} /></label>
       <label data-field>Excerpt<textarea rows={2} value={excerpt()} onInput={(e) => setExcerpt(e.currentTarget.value)} /></label>
       <label data-field>Body<textarea rows={10} required value={body()} onInput={(e) => setBody(e.currentTarget.value)} /></label>
@@ -76,6 +77,7 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
         </label>
       </Show>
       <footer class="hstack justify-end"><button type="submit">Save</button></footer>
-    </form>
+      </form>
+    </article>
   );
 }

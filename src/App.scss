@@ -65,6 +65,14 @@ main {
   padding: 3rem 1rem;
 }
 
+// Narrow centered card for single-column forms (login, editor).
+// Oat's card supplies padding/border; we only constrain width.
+.form-card {
+  max-width: 28rem;
+  margin-inline: auto;
+  text-align: start;
+}
+
 .logo {
   animation: logo-spin infinite 20s linear;
   height: 24vmin;
