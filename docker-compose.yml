@@ -4,6 +4,8 @@ services:
   app:
     build: .
     image: hello-solid-app
+    ports:
+      - "${PB_PUBLISH_PORT:-8090}:8090"
     user: "${UID:-1000}:${GID:-1000}"
     read_only: true
     tmpfs:

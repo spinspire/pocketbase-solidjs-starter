@@ -30,3 +30,7 @@ Thumbs.db
 # pocketbase
 /pb_data
 /pocketbase
+
+# playwright
+/test-results
+/playwright-report

@@ -9,11 +9,13 @@
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest",
+    "test:e2e": "playwright test",
     "lint": "oxlint src",
     "typegen": "pocketbase-typegen --db ./pb_data/data.db --out ./src/lib/pocketbase-types.ts"
   },
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@solidjs/diagnostics": "^2.0.0-rc.6",
     "@solidjs/start-devtools": "^1.0.0-next.4",
     "@solidjs/testing-library": "^1.0.0-beta.3",
