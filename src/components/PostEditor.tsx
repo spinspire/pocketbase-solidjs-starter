@@ -1,11 +1,11 @@
 import { createMemo, createSignal, For, Show, untrack } from "solid-js";
-import type { RecordModel } from "pocketbase";
 import { isSuperuser, pb } from "../lib/pb";
+import type { PostsResponse, UsersResponse } from "../lib/pocketbase-types";
 import { bumpData } from "../lib/refresh";
 
 export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
 
-export default function PostEditor(props: { initial?: RecordModel; onSave: (id: string, slug: string) => void }) {
+export default function PostEditor(props: { initial?: PostsResponse; onSave: (id: string, slug: string) => void }) {
   // One-time snapshot by design: form state must not track the record.
   const initial = untrack(() => props.initial);
   const [title, setTitle] = createSignal(initial?.title ?? "");
@@ -13,13 +13,13 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
   const [body, setBody] = createSignal(initial?.body ?? "");
   const [status, setStatus] = createSignal<"draft" | "published">(initial?.status ?? "draft");
   const [cover, setCover] = createSignal<File | undefined>(undefined);
-  const [authorId, setAuthorId] = createSignal<string>((initial?.author as string) ?? "");
+  const [authorId, setAuthorId] = createSignal<string>(initial?.author ?? "");
   const [error, setError] = createSignal<string | null>(null);
 
   // Superusers may attribute the post to any user; regular authors are fixed by the hook.
   const authors = createMemo(async () => {
     if (!isSuperuser()) return [];
-    return (await pb.collection("users").getFullList({ sort: "email", requestKey: "users-for-author-pick" })) as RecordModel[];
+    return (await pb.collection("users").getFullList({ sort: "email", requestKey: "users-for-author-pick" })) as UsersResponse[];
   });
 
   // PocketBase wraps failures in ClientResponseError: top message + per-field detail.
@@ -48,10 +48,10 @@ export default function PostEditor(props: { initial?: RecordModel; onSave: (id: 
       if (isSuperuser() && authorId()) data.author = authorId();
       // Mutations must never autocancel: a second save would abort the first.
       const saved = props.initial
-        ? await pb.collection("posts").update(props.initial.id, data, { $autoCancel: false })
-        : await pb.collection("posts").create(data, { $autoCancel: false });
+        ? await pb.collection("posts").update<PostsResponse>(props.initial.id, data, { $autoCancel: false })
+        : await pb.collection("posts").create<PostsResponse>(data, { $autoCancel: false });
       bumpData(); // invalidate list/detail/users memos everywhere
-      props.onSave(saved.id, saved.slug as string);
+      props.onSave(saved.id, saved.slug);
     } catch (err) {
       setError(errText(err));
     }
