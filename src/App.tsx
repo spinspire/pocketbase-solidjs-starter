@@ -1,7 +1,9 @@
 import { Title } from '@solidjs/meta';
 import '@knadh/oat/oat.min.js';
-import { Loading } from 'solid-js';
+import { Loading, Show } from 'solid-js';
 import { paths, Router } from './router';
+import UserBadge from './components/UserBadge';
+import { currentUser } from './lib/pb';
 import './App.scss';
 
 // The app root: the router and the site-wide layout live here. Pages are
@@ -15,6 +17,10 @@ export default function App() {
           <nav>
             <a href={paths()}>Home</a>
             <a href={paths.users(1)}>Users</a>
+            <a href={paths.blog()}>Blog</a>
+            <Show when={currentUser()} fallback={<a href={paths.login()}>Login</a>}>
+              <UserBadge />
+            </Show>
           </nav>
           <Loading fallback={<main>Loading…</main>}>{props.children}</Loading>
         </>
