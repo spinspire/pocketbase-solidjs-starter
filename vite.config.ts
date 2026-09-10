@@ -2,6 +2,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { fileRoutes } from 'filesystem-routing/vite';
 import { defineConfig, type Plugin } from 'vitest/config';
 import solid from '@solidjs/vite-plugin';
+import { resolve } from 'node:path';
 
 // Dev-only: boot the backend via entrypoint.sh (binary download, superuser
 // bootstrap, env defaults, serve) alongside vite so `bun run dev` is the
@@ -61,6 +62,11 @@ process.on('SIGINT', () => killPb('SIGINT'));
 process.on('SIGTERM', () => killPb('SIGTERM'));
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
   // Turnkey client mode: no index.html and no mount file — the plugin
   // generates the entries around src/App.tsx, wrapped in src/Document.tsx
   // (or a built-in shell). `vite build` prerenders the shell into

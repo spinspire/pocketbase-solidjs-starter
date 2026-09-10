@@ -2,10 +2,10 @@ import { Title } from '@solidjs/meta';
 import '@knadh/oat/oat.min.js';
 import { Loading, Show, For } from 'solid-js';
 import { useLocation } from '@solidjs/router';
-import { paths, Router } from './router';
-import Alerts from './components/Alerts';
-import UserBadge from './components/UserBadge';
-import { currentUser, isSuperuser } from './lib/pb';
+import { paths, Router } from '@/router';
+import Alerts from '@/components/Alerts';
+import UserBadge from '@/components/UserBadge';
+import { currentUser, isSuperuser } from '@/lib/pb';
 import './App.scss';
 
 const NAV_LINKS = [

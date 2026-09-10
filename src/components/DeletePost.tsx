@@ -1,9 +1,9 @@
 import { useNavigate } from "@solidjs/router";
 import { Show, createSignal } from "solid-js";
-import { pb } from "../lib/pb";
-import { alertOnFailure, alerts } from "../lib/alerts";
-import { bumpData } from "../lib/refresh";
-import { paths } from "../router";
+import { pb } from "@/lib/pb";
+import { alertOnFailure, alerts } from "@/lib/alerts";
+import { bumpData } from "@/lib/refresh";
+import { paths } from "@/router";
 
 // Inline two-step delete (mirrors the users table pattern): first click arms
 // the confirm, second click deletes, alerts, and returns to the blog list.

@@ -1,11 +1,11 @@
 import { Title } from "@solidjs/meta";
 import { Errored, For, Show, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
-import { currentUser, isSuperuser, pb } from "../../lib/pb";
-import { renderMarkdown } from "../../lib/markdown";
-import { dataRev } from "../../lib/refresh";
-import Paginator from "../../components/Paginator";
-import { paths } from "../../router";
-import type { PostsResponse, UsersResponse } from "../../lib/pocketbase-types";
+import { currentUser, isSuperuser, pb } from "@/lib/pb";
+import { renderMarkdown } from "@/lib/markdown";
+import { dataRev } from "@/lib/refresh";
+import Paginator from "@/components/Paginator";
+import { paths } from "@/router";
+import type { PostsResponse, UsersResponse } from "@/lib/pocketbase-types";
 import styles from "./index.module.scss";
 
 const PER_PAGE = 15; // multiple of the 3-column grid

@@ -1,11 +1,11 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createEffect, createMemo, createSignal, refresh } from "solid-js";
-import { currentUser, pb } from "../../lib/pb";
-import Guard from "../../components/Guard";
-import { bumpData } from "../../lib/refresh";
-import { alerts } from "../../lib/alerts";
-import { paths } from "../../router";
+import { currentUser, pb } from "@/lib/pb";
+import Guard from "@/components/Guard";
+import { bumpData } from "@/lib/refresh";
+import { alerts } from "@/lib/alerts";
+import { paths } from "@/router";
 
 export default function UserProfile(props: RouteProps<"/users/:id">) {
   const navigate = useNavigate();

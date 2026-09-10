@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { currentUser } from "../lib/pb";
-import { paths } from "../router";
+import { currentUser } from "@/lib/pb";
+import { paths } from "@/router";
 
 // Avatar link to the profile area: superusers land on user management,
 // regular users bounce to their own profile. Logged-out renders nothing

@@ -1,11 +1,11 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createMemo } from "solid-js";
-import PostEditor from "../../../components/PostEditor";
-import Guard from "../../../components/Guard";
-import { currentUser, isSuperuser, pb } from "../../../lib/pb";
-import type { PostsResponse } from "../../../lib/pocketbase-types";
-import { paths } from "../../../router";
+import PostEditor from "@/components/PostEditor";
+import Guard from "@/components/Guard";
+import { currentUser, isSuperuser, pb } from "@/lib/pb";
+import type { PostsResponse } from "@/lib/pocketbase-types";
+import { paths } from "@/router";
 
 export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
   const navigate = useNavigate();

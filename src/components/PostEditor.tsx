@@ -1,8 +1,8 @@
 import { createMemo, createSignal, For, Show, untrack } from "solid-js";
-import { isSuperuser, pb } from "../lib/pb";
-import type { PostsResponse, UsersResponse } from "../lib/pocketbase-types";
-import { bumpData } from "../lib/refresh";
-import { alerts } from "../lib/alerts";
+import { isSuperuser, pb } from "@/lib/pb";
+import type { PostsResponse, UsersResponse } from "@/lib/pocketbase-types";
+import { bumpData } from "@/lib/refresh";
+import { alerts } from "@/lib/alerts";
 
 export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
 

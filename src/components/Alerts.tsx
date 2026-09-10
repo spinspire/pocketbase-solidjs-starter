@@ -1,5 +1,5 @@
 import { For, Show, onCleanup } from "solid-js";
-import { alerts } from "../lib/alerts";
+import { alerts } from "@/lib/alerts";
 
 // Site-wide toasts. Mount once in App. Also funnels unhandled promise
 // rejections (e.g. a realtime resubscribe failing) into error alerts so

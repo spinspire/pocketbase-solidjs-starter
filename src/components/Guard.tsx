@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { Show, createEffect, type ParentProps } from "solid-js";
-import { currentUser, isSuperuser } from "../lib/pb";
-import { paths } from "../router";
+import { currentUser, isSuperuser } from "@/lib/pb";
+import { paths } from "@/router";
 
 type GuardProps = ParentProps<{
   /** true = superusers only; undefined = any logged-in user. */

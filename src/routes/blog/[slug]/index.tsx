@@ -1,13 +1,13 @@
 import { Title } from "@solidjs/meta";
 import type { RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createMemo } from "solid-js";
-import { currentUser, isSuperuser, pb } from "../../../lib/pb";
-import type { PostsResponse, UsersResponse } from "../../../lib/pocketbase-types";
-import { renderMarkdown } from "../../../lib/markdown";
-import { dataRev } from "../../../lib/refresh";
-import DeletePost from "../../../components/DeletePost";
-import { paths } from "../../../router";
-import type { Router } from "../../../router";
+import { currentUser, isSuperuser, pb } from "@/lib/pb";
+import type { PostsResponse, UsersResponse } from "@/lib/pocketbase-types";
+import { renderMarkdown } from "@/lib/markdown";
+import { dataRev } from "@/lib/refresh";
+import DeletePost from "@/components/DeletePost";
+import { paths } from "@/router";
+import type { Router } from "@/router";
 
 export default function PostDetail(props: RouteProps<"/blog/:slug">) {
   const post = createMemo(() => {

@@ -1,10 +1,10 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
-import { pb } from "../lib/pb";
-import { alerts } from "../lib/alerts";
-import Guard from "../components/Guard";
-import { paths } from "../router";
+import { pb } from "@/lib/pb";
+import { alerts } from "@/lib/alerts";
+import Guard from "@/components/Guard";
+import { paths } from "@/router";
 
 export default function Login() {
   const navigate = useNavigate();

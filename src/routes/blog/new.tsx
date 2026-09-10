@@ -1,8 +1,8 @@
 import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import PostEditor from "../../components/PostEditor";
-import Guard from "../../components/Guard";
-import { paths } from "../../router";
+import PostEditor from "@/components/PostEditor";
+import Guard from "@/components/Guard";
+import { paths } from "@/router";
 
 export default function NewPost() {
   const navigate = useNavigate();
