@@ -5,6 +5,7 @@ import { currentUser, isSuperuser, pb } from "../../../lib/pb";
 import type { PostsResponse, UsersResponse } from "../../../lib/pocketbase-types";
 import { renderMarkdown } from "../../../lib/markdown";
 import { dataRev } from "../../../lib/refresh";
+import DeletePost from "../../../components/DeletePost";
 import { paths } from "../../../router";
 import type { Router } from "../../../router";
 
@@ -38,6 +39,10 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
             </Show>
             <Show when={canEdit()}>
               <a href={`${paths.blog(props.params.slug)()}/edit`} class="button outline small">Edit post</a>
+              {/* Keyed: DeletePost takes settled strings, never a pending memo. */}
+              <Show when={post()} keyed>
+                {(p) => <DeletePost id={p.id} title={p.title} />}
+              </Show>
             </Show>
           </div>
           <h1>{post().title}</h1>
