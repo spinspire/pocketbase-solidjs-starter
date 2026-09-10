@@ -1,0 +1,7 @@
+node_modules
+pb_data
+tmp
+.git
+.env
+dist/server
+*.log
