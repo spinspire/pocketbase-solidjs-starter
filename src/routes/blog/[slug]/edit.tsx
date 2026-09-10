@@ -3,6 +3,7 @@ import { useNavigate, type RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createEffect, createMemo } from "solid-js";
 import PostEditor from "../../../components/PostEditor";
 import { currentUser, isSuperuser, pb } from "../../../lib/pb";
+import type { PostsResponse } from "../../../lib/pocketbase-types";
 import { paths } from "../../../router";
 
 export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
@@ -12,7 +13,7 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
     if (!user) navigate(paths.login(), { replace: true });
   });
   const post = createMemo(() =>
-    pb.collection("posts").getFirstListItem(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
+    pb.collection("posts").getFirstListItem<PostsResponse>(pb.filter("slug = {:slug}", { slug: props.params.slug }), {
       requestKey: `post-edit-${props.params.slug}`,
     }),
   );
@@ -38,7 +39,7 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
             when={canEdit()}
             fallback={
               <div role="alert">
-                You don't have permission to edit this post. <a href={paths.blog(post().slug as string)()}>Back to post</a>
+                You don't have permission to edit this post. <a href={paths.blog(post().slug)()}>Back to post</a>
               </div>
             }
           >

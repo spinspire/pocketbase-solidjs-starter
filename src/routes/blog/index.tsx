@@ -5,6 +5,7 @@ import { renderMarkdown } from "../../lib/markdown";
 import { dataRev } from "../../lib/refresh";
 import Paginator from "../../components/Paginator";
 import { paths } from "../../router";
+import type { PostsResponse, UsersResponse } from "../../lib/pocketbase-types";
 import styles from "./index.module.scss";
 
 const PER_PAGE = 15; // multiple of the 3-column grid
@@ -26,7 +27,7 @@ async function fetchPosts(page: number, user: { id: string; collectionName: stri
     : user.collectionName === "_superusers"
       ? ""
       : pb.filter("status = 'published' || author = {:author}", { author: user.id });
-  return pb.collection("posts").getList(page, PER_PAGE, {
+  return pb.collection("posts").getList<PostsResponse<{ author: UsersResponse }>>(page, PER_PAGE, {
     filter,
     sort: "-created",
     expand: "author",
@@ -65,7 +66,7 @@ export default function BlogIndex() {
           {(post) => (
             <article class="card">
               <header class="hstack justify-between items-center">
-                <h3><a href={paths.blog(post.slug as string)()}>{post.title}</a></h3>
+                <h3><a href={paths.blog(post.slug)()}>{post.title}</a></h3>
                 <span class="hstack gap-2">
                   <Show when={post.status === "draft"}>
                     <span class="badge" data-variant="warning">Draft</span>
@@ -78,7 +79,7 @@ export default function BlogIndex() {
               </header>
               <Show when={post.cover}>
                 <img
-                  src={pb.files.getURL(post, post.cover as string, { thumb: "800x450" })}
+                  src={pb.files.getURL(post, post.cover, { thumb: "800x450" })}
                   alt=""
                   loading="lazy"
                 />
@@ -86,13 +87,13 @@ export default function BlogIndex() {
               <div class="text-light" innerHTML={renderMarkdown(post.excerpt)} />
               <footer class="hstack justify-between items-center">
                 <small class="text-light">
-                  {(post.expand as Record<string, { name?: string; email?: string }> | undefined)?.author?.name ?? "Unknown"}
+                  {post.expand?.author?.name ?? "Unknown"}
                 </small>
                 <span class="hstack gap-2">
                   <Show when={isSuperuser() || post.author === currentUser()?.id}>
-                    <a href={`${paths.blog(post.slug as string)()}/edit`} class="button outline small">Edit</a>
+                    <a href={`${paths.blog(post.slug)()}/edit`} class="button outline small">Edit</a>
                   </Show>
-                  <a href={paths.blog(post.slug as string)()} class="button ghost small">Read →</a>
+                  <a href={paths.blog(post.slug)()} class="button ghost small">Read →</a>
                 </span>
               </footer>
             </article>
