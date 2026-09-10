@@ -2,7 +2,7 @@ import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import type { RecordModel } from "pocketbase";
-import { currentUser, pb } from "../../lib/pb";
+import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import { bumpData, dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
@@ -20,7 +20,6 @@ export default function UsersIndex() {
     else if (user.collectionName !== "_superusers") navigate(paths.users(user.id), { replace: true });
   });
 
-  const isSuperuser = createMemo(() => currentUser()?.collectionName === "_superusers");
   const users = createMemo(async () => {
     if (!isSuperuser()) return [];
     dataRev();

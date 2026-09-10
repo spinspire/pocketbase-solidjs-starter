@@ -1,7 +1,7 @@
 import { Title } from "@solidjs/meta";
 import { Errored, For, Show, createMemo, createSignal } from "solid-js";
 import type { RecordModel } from "pocketbase";
-import { currentUser, pb } from "../../lib/pb";
+import { currentUser, isSuperuser, pb } from "../../lib/pb";
 import { dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
@@ -30,7 +30,7 @@ export default function BlogIndex() {
     // Superusers see every draft; authors see their own. Parameterized —
     // never interpolate ids into filter strings.
     const filter =
-      user.collectionName === "_superusers"
+      isSuperuser()
         ? "status = 'draft'"
         : pb.filter("status = 'draft' && author = {:author}", { author: user.id });
     return (await pb.collection("posts").getFullList({
@@ -50,7 +50,7 @@ export default function BlogIndex() {
       <Show when={currentUser()}>
         <p><a href={paths.blog.new()}>New post</a></p>
         <Show when={drafts().length > 0}>
-          <h2>{currentUser()?.collectionName === "_superusers" ? "All drafts" : "Your drafts"}</h2>
+          <h2>{isSuperuser() ? "All drafts" : "Your drafts"}</h2>
           <For each={drafts()}>
             {(d) => (
               <article class="card">

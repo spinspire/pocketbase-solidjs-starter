@@ -1,23 +1,40 @@
 import PocketBase, { type AuthRecord } from "pocketbase";
-import { createSignal } from "solid-js";
+import { createMemo, createStore } from "solid-js";
 
 export const pb = new PocketBase();
 
-// Testable core: bind a signal to any authStore-shaped client.
-// immediate=true replays the current (token, record) into the callback,
-// so no separate initial read is needed.
-export function createAuthSignal(client: {
+export type AuthState = {
+  /** The logged-in record (user or superuser), or null when logged out. */
+  record: AuthRecord | null;
+};
+
+// Testable core: bind a reactive identity store to any authStore-shaped
+// client. immediate=true replays the current (token, record) into the
+// callback, so no separate initial read is needed.
+export function createAuthStore(client: {
   authStore: {
     record: AuthRecord | null;
     onChange: (cb: (token: string, record: AuthRecord | null) => void, immediate?: boolean) => () => void;
   };
 }) {
-  const [user, setUser] = createSignal<AuthRecord | null>(null);
-  client.authStore.onChange((_token, record) => setUser(() => record), true);
-  return user;
+  const [auth, setAuth] = createStore<AuthState>({ record: null });
+  client.authStore.onChange((_token, record) => {
+    setAuth((draft) => {
+      draft.record = record;
+    });
+  }, true);
+  return auth;
 }
 
-export const currentUser = createAuthSignal(pb);
+export const auth = createAuthStore(pb);
+
+/** Back-compat accessor; prefer `auth.record` / `isSuperuser` in new code. */
+export const currentUser = () => auth.record;
+
+// Reactive role check for UI gates (nav, drafts, editors). Reads the store,
+// so it updates on login/logout — unlike pb.authStore.isSuperuser, which is
+// a plain getter for one-shot checks.
+export const isSuperuser = createMemo(() => auth.record?.collectionName === "_superusers");
 
 // Validate the stored session at startup: the badge must never pose as
 // logged in on a dead token. Locally-expired tokens clear immediately;

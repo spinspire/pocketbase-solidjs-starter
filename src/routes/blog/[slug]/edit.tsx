@@ -2,7 +2,7 @@ import { Title } from "@solidjs/meta";
 import { useNavigate, type RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createEffect, createMemo } from "solid-js";
 import PostEditor from "../../../components/PostEditor";
-import { currentUser, pb } from "../../../lib/pb";
+import { currentUser, isSuperuser, pb } from "../../../lib/pb";
 import { paths } from "../../../router";
 
 export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
@@ -20,7 +20,7 @@ export default function EditPost(props: RouteProps<"/blog/:slug/edit">) {
   const canEdit = createMemo(() => {
     const p = post();
     const me = currentUser();
-    return !!me && (me.collectionName === "_superusers" || p.author === me.id);
+    return !!me && (isSuperuser() || p.author === me.id);
   });
   return (
     <Errored fallback={<main><h1>Not found</h1></main>}>
