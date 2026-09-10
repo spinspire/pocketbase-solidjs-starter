@@ -63,3 +63,13 @@ test("edit post", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("heading", { name: `${title} (edited)` })).toBeVisible();
 });
+
+test("delete post", async ({ page }) => {
+  await page.goto("/blog");
+  await doLogin(page);
+  await page.getByRole("link", { name: `${title} (edited)` }).first().click();
+  await page.getByRole("button", { name: "Delete" }).click();
+  await page.getByRole("button", { name: "Yes, delete" }).click();
+  await expect(page).toHaveURL(/\/blog$/);
+  await expect(page.getByRole("link", { name: `${title} (edited)` })).toHaveCount(0);
+});
