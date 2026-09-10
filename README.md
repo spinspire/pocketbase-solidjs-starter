@@ -28,6 +28,7 @@ First boot creates the superuser, a test user, and 25 demo posts (all idempotent
 ## How it works
 
 - **Frontend** (`src/`): file routes in `src/routes` (`/blog`, `/blog/:slug`, editor, login). `src/lib/pb.ts` holds the PB singleton + auth signal. State is signals/stores; async flows through memos under `<Loading>` boundaries.
+- **Keeping data fresh**: after a mutation, recompute with `refresh(source)` when the memo is in scope; across components, list/detail memos subscribe to a shared revision signal (`src/lib/refresh.ts`) that every mutation bumps via `bumpData()`.
 - **Backend**: `entrypoint.sh` downloads PB, applies migrations (`pb_migrations/`, committed), and serves. `pb_hooks/` holds request hooks (auto-slug, author ownership) and `bootstrap.pb.js` (seeding). `pb_data/` is local scratch.
 - **Styling**: semantic HTML + oat-css tokens in `src/App.scss`; no utility classes, no hard-coded colors.
 - **Prod**: serve `dist/client` statically and run pocketbase with `--publicDir=./dist/client` (see `entrypoint.sh`).

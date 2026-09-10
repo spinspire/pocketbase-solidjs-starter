@@ -22,6 +22,12 @@ Use these whenever you are debugging reactivity (something doesn't update, updat
 
 Name your signals/memos/effects (the `{ name: "..." }` option) — attribution reports scopes by name.
 
+## Data freshness after mutations
+
+- Same component: recompute with `refresh(source)` after the write.
+- Cross-component (a memo elsewhere holds the data): readers subscribe to `dataRev()` from `src/lib/refresh.ts`; writers call `bumpData()` after every mutation.
+- Never re-fetch imperatively into signals from component bodies, and never pass a pending memo as a custom component's prop (resolve via keyed `<Show>`).
+
 ## Backend (PocketBase v0.40, SQLite)
 
 - `entrypoint.sh` is PB-only: downloads the binary, defaults env, runs `migrate up`, `exec`s serve. Never add background processes to it (orphan risk).
