@@ -81,6 +81,12 @@ main {
   text-align: start;
 }
 
+// Rendered markdown: left-aligned, readable measure.
+.markdown-body {
+  text-align: start;
+  max-width: 42rem;
+}
+
 // Blog post cards: cover image below the header, height-capped like detail.
 .post-card > img {
   width: 100%;

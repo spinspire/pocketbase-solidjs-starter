@@ -1,6 +1,7 @@
 import { Title } from "@solidjs/meta";
 import { Errored, For, Show, createMemo, createSignal } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../lib/pb";
+import { renderMarkdown } from "../../lib/markdown";
 import { dataRev } from "../../lib/refresh";
 import { paths } from "../../router";
 
@@ -79,7 +80,7 @@ export default function BlogIndex() {
                   loading="lazy"
                 />
               </Show>
-              <p class="text-light">{post.excerpt}</p>
+              <div class="text-light" innerHTML={renderMarkdown(post.excerpt)} />
               <footer class="hstack justify-between items-center">
                 <small class="text-light">
                   {(post.expand as Record<string, { name?: string; email?: string }> | undefined)?.author?.name ?? "Unknown"}

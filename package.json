@@ -33,6 +33,8 @@
     "@solidjs/meta": "^1.0.0-next.2",
     "@solidjs/router": "^2.0.0-next.21",
     "@solidjs/web": "^2.0.0-rc.6",
+    "dompurify": "^3.4.15",
+    "marked": "^18.0.12",
     "pocketbase": "^0.28.1",
     "solid-js": "^2.0.0-rc.6"
   }

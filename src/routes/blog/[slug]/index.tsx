@@ -2,6 +2,7 @@ import { Title } from "@solidjs/meta";
 import type { RouteProps } from "@solidjs/router";
 import { Errored, Loading, Show, createMemo } from "solid-js";
 import { currentUser, isSuperuser, pb } from "../../../lib/pb";
+import { renderMarkdown } from "../../../lib/markdown";
 import { dataRev } from "../../../lib/refresh";
 import { paths } from "../../../router";
 import type { Router } from "../../../router";
@@ -41,7 +42,7 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
           <h1>{post().title}</h1>
           <p class="text-light">{post().publishedAt ?? post().created} · {(post().expand as Record<string, { name?: string }>)?.author?.name ?? "Unknown"}</p>
           <Show when={coverUrl()}>{(url) => <img src={url()} alt="" class="post-cover" />}</Show>
-          <p>{post().body}</p>
+          <div class="markdown-body" innerHTML={renderMarkdown(post().body)} />
         </main>
       </Loading>
     </Errored>
