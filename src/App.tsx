@@ -14,34 +14,36 @@ const NAV_LINKS = [
 ] as const;
 
 export default function App() {
-  const location = useLocation();
-  const isActive = (href: string, end?: boolean) =>
-    end ? location.pathname === href : location.pathname.startsWith(href);
-
   return (
     <Router>
-      {(props) => (
-        <>
-          <Title>PocketBase SolidJS Starter</Title>
-          <nav>
-            <For each={NAV_LINKS}>
-              {(link) => (
-                <a href={link.href} aria-current={isActive(link.href, 'end' in link && link.end) ? 'page' : undefined}>
-                  {link.label}
-                </a>
-              )}
-            </For>
-            <Show when={isSuperuser()}>
-              <a href={paths.users()} aria-current={isActive(paths.users()) ? 'page' : undefined}>Users</a>
-            </Show>
-            <Show when={currentUser()} fallback={<a href={paths.login()}>Login</a>}>
-              <UserBadge />
-            </Show>
-          </nav>
-          <Loading fallback={<main>Loading…</main>}>{props.children}</Loading>
-          <Alerts />
-        </>
-      )}
+      {(props) => {
+        const location = useLocation();
+        const isActive = (href: string, end?: boolean) =>
+          end ? location.pathname === href : location.pathname.startsWith(href);
+
+        return (
+          <>
+            <Title>PocketBase SolidJS Starter</Title>
+            <nav>
+              <For each={NAV_LINKS}>
+                {(link) => (
+                  <a href={link.href} aria-current={isActive(link.href, 'end' in link && link.end) ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                )}
+              </For>
+              <Show when={isSuperuser()}>
+                <a href={paths.users()} aria-current={isActive(paths.users()) ? 'page' : undefined}>Users</a>
+              </Show>
+              <Show when={currentUser()} fallback={<a href={paths.login()}>Login</a>}>
+                <UserBadge />
+              </Show>
+            </nav>
+            <Loading fallback={<main>Loading…</main>}>{props.children}</Loading>
+            <Alerts />
+          </>
+        );
+      }}
     </Router>
   );
 }

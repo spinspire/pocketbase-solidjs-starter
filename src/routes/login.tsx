@@ -49,12 +49,12 @@ export default function Login() {
       <Title>Login - PocketBase SolidJS</Title>
       <h1>{mode() === "signup" ? "Sign up" : "Log in"}</h1>
       <article class="card form-card">
-        <nav class="hstack gap-2" role="tablist">
+        <div class="tabs">
           <button
             type="button"
             role="tab"
             aria-selected={mode() === "signin" ? "true" : "false"}
-            class={mode() === "signin" ? "" : "ghost"}
+            class={mode() === "signin" ? "tab active" : "tab"}
             onClick={() => setMode("signin")}
           >
             Sign in
@@ -63,12 +63,12 @@ export default function Login() {
             type="button"
             role="tab"
             aria-selected={mode() === "signup" ? "true" : "false"}
-            class={mode() === "signup" ? "" : "ghost"}
+            class={mode() === "signup" ? "tab active" : "tab"}
             onClick={() => setMode("signup")}
           >
             Sign up
           </button>
-        </nav>
+        </div>
         <Show when={error()}>
           <div role="alert">{error()}</div>
         </Show>
