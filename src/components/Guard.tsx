@@ -8,6 +8,8 @@ type GuardProps = ParentProps<{
   admin?: boolean;
   /** When set, logged-in visits bounce there instead (e.g. the login page). */
   destination?: string;
+  /** Where to redirect logged-in users who lack the required role. Defaults to /users/:id (own profile). */
+  unauthorized?: string;
 }>;
 
 // One gate for auth pages, replacing the per-page createEffect bounce:
@@ -17,11 +19,18 @@ export default function Guard(props: GuardProps) {
   const navigate = useNavigate();
   const authed = () => !!currentUser();
   const authorized = () => authed() && (props.admin === undefined || isSuperuser() === props.admin);
+  const unauthorizedTarget = () => {
+    if (props.unauthorized) return props.unauthorized;
+    const u = currentUser();
+    return u ? paths.users(u.id) : paths.login();
+  };
   createEffect(authed, (loggedIn) => {
     if (props.destination) {
       if (loggedIn) navigate(props.destination);
     } else if (!loggedIn) {
       navigate(paths.login(), { replace: true });
+    } else if (!authorized()) {
+      navigate(unauthorizedTarget(), { replace: true });
     }
   });
   return <Show when={props.destination ? true : authorized()}>{props.children}</Show>;
