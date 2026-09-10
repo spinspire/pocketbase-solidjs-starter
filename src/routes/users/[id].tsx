@@ -4,12 +4,14 @@ import { Errored, Loading, Show, createEffect, createMemo, createSignal, refresh
 import { currentUser, pb } from "../../lib/pb";
 import Guard from "../../components/Guard";
 import { bumpData } from "../../lib/refresh";
+import { alerts } from "../../lib/alerts";
 import { paths } from "../../router";
 
 export default function UserProfile(props: RouteProps<"/users/:id">) {
   const navigate = useNavigate();
   const [name, setName] = createSignal("");
   const [avatar, setAvatar] = createSignal<File | undefined>(undefined);
+  const [avatarPreview, setAvatarPreview] = createSignal<string | null>(null);
   const [oldPassword, setOldPassword] = createSignal("");
   const [newPassword, setNewPassword] = createSignal("");
   const [error, setError] = createSignal<string | null>(null);
@@ -31,6 +33,27 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
     const u = user();
     return u?.avatar ? pb.files.getURL(u, u.avatar, { thumb: "160x160" }) : null;
   });
+
+  const handleAvatarPaste = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) return;
+        setAvatar(file);
+        setAvatarPreview(URL.createObjectURL(file));
+        alerts.success("Image pasted as avatar.");
+        return;
+      }
+    }
+  };
+
+  const removeAvatar = () => {
+    setAvatar(undefined);
+    setAvatarPreview(null);
+  };
 
   // Sync the name field once the record resolves (effect phase, not render).
   createEffect(user, (u) => {
@@ -106,7 +129,13 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
             </menu>
           </div>
           <p class="text-light">{user().email}</p>
-          <Show when={avatarUrl()}>{(url) => <img src={url()} alt="" width="80" height="80" />}</Show>
+          <Show when={avatarPreview()}>
+            <div class="cover-preview">
+              <img src={avatarPreview()!} alt="Avatar preview" />
+              <button type="button" class="outline" onClick={removeAvatar}>Remove</button>
+            </div>
+          </Show>
+          <Show when={!avatarPreview() && avatarUrl()}>{(url) => <img src={url()} alt="" width="80" height="80" />}</Show>
           <Show when={error()}>
             <div role="alert">{error()}</div>
           </Show>
@@ -130,7 +159,15 @@ export default function UserProfile(props: RouteProps<"/users/:id">) {
                 </label>
                 <label data-field>
                   Avatar
-                  <input type="file" accept="image/*" onChange={(e) => setAvatar(e.currentTarget.files?.[0])} />
+                  <Show
+                    when={avatarPreview()}
+                    fallback={<input type="file" accept="image/*" onChange={(e) => { const f = e.currentTarget.files?.[0]; if (f) { setAvatar(f); setAvatarPreview(URL.createObjectURL(f)); } }} onPaste={handleAvatarPaste} />}
+                  >
+                    <div class="cover-preview">
+                      <img src={avatarPreview()!} alt="Avatar preview" />
+                      <button type="button" class="outline" onClick={removeAvatar}>Remove</button>
+                    </div>
+                  </Show>
                 </label>
                 <footer class="hstack justify-end">
                   <button type="submit" aria-busy={savingProfile() ? "true" : "false"}>{savingProfile() ? "Saving…" : "Save profile"}</button>
