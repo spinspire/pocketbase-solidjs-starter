@@ -9,7 +9,8 @@
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest",
-    "lint": "oxlint src"
+    "lint": "oxlint src",
+    "typegen": "pocketbase-typegen --db ./pb_data/data.db --out ./src/lib/pocketbase-types.ts"
   },
   "license": "MIT",
   "devDependencies": {
@@ -23,6 +24,7 @@
     "filesystem-routing": "0.2.1",
     "jsdom": "^25.0.1",
     "oxlint": "~1.79.0",
+    "pocketbase-typegen": "^1.5.0",
     "sass": "^1.83.0",
     "typescript": "^5.9.2",
     "vite": "^8.1.5",
