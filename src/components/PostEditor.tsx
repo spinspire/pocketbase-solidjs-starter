@@ -37,12 +37,12 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
   const submit = async (ev: Event) => {
     ev.preventDefault();
     setError(null);
-    // The badge renders from the stored record even with an expired token —
-    // catch that here instead of surfacing a confusing rule failure.
     if (!pb.authStore.isValid) {
       setError("Session expired. Please log out and log in again.");
       return;
     }
+    if (!title().trim()) { setError("Title is required."); return; }
+    if (!body().trim()) { setError("Body is required."); return; }
     setSaving(true);
     try {
       const data: Record<string, unknown> = { title: title(), excerpt: excerpt(), body: body(), status: status() };
