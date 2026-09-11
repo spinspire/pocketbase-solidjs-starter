@@ -6,6 +6,7 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export const Collections = {
+	Auditlog: "auditlog",
 	Authorigins: "_authOrigins",
 	Externalauths: "_externalAuths",
 	Mfas: "_mfas",
@@ -44,6 +45,19 @@ export type AuthSystemFields<T = unknown> = {
 } & BaseSystemFields<T>
 
 // Record types for each collection
+
+export type AuditlogRecord = {
+	admin?: string
+	collection: string
+	created: IsoAutoDateString
+	data?: Record<string, unknown>
+	event: string
+	id: string
+	original?: Record<string, unknown>
+	record: string
+	updated: IsoAutoDateString
+	user?: RecordIdString
+}
 
 export type AuthoriginsRecord = {
 	collectionRef: string
@@ -127,6 +141,7 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
+export type AuditlogResponse<Texpand = unknown> = Required<AuditlogRecord> & BaseSystemFields<Texpand>
 export type AuthoriginsResponse<Texpand = unknown> = Required<AuthoriginsRecord> & BaseSystemFields<Texpand>
 export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRecord> & BaseSystemFields<Texpand>
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
@@ -138,6 +153,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	auditlog: AuditlogRecord
 	_authOrigins: AuthoriginsRecord
 	_externalAuths: ExternalauthsRecord
 	_mfas: MfasRecord
@@ -148,6 +164,7 @@ export type CollectionRecords = {
 }
 
 export type CollectionResponses = {
+	auditlog: AuditlogResponse
 	_authOrigins: AuthoriginsResponse
 	_externalAuths: ExternalauthsResponse
 	_mfas: MfasResponse
