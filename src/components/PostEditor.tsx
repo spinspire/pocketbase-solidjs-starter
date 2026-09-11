@@ -4,7 +4,9 @@ import type { PostsResponse, UsersResponse } from "@/lib/pocketbase-types";
 import { bumpData } from "@/lib/refresh";
 import { alerts } from "@/lib/alerts";
 
-export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; cover?: File };
+export type PostDraft = { title: string; excerpt: string; body: string; status: "draft" | "published"; images?: File[] };
+
+type ImageEntry = { file?: File; name?: string; preview: string };
 
 export default function PostEditor(props: { initial?: PostsResponse; onSave: (id: string, slug: string) => void }) {
   const initial = untrack(() => props.initial);
@@ -12,8 +14,10 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
   const [excerpt, setExcerpt] = createSignal(initial?.excerpt ?? "");
   const [body, setBody] = createSignal(initial?.body ?? "");
   const [status, setStatus] = createSignal<"draft" | "published">(initial?.status ?? "draft");
-  const [cover, setCover] = createSignal<File | undefined>(undefined);
-  const [coverPreview, setCoverPreview] = createSignal<string | null>(initial?.cover ? pb.files.getURL(initial, initial.cover) : null);
+  const seedNames: string[] = Array.isArray(initial?.images) ? (initial.images as string[]) : [];
+  const [images, setImages] = createSignal<ImageEntry[]>(
+    initial ? seedNames.map((name) => ({ name, preview: pb.files.getURL(initial, name) })) : []
+  );
   const [authorId, setAuthorId] = createSignal<string>(initial?.author ?? "");
   const [error, setError] = createSignal<string | null>(null);
   const [saving, setSaving] = createSignal(false);
@@ -33,6 +37,13 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
     return first?.[1]?.message ? `${err.message} (${first[0]}: ${first[1].message})` : err.message;
   };
 
+  const addImageFiles = (files: FileList | File[]) => {
+    const list = Array.from(files);
+    if (list.length === 0) return;
+    setImages((prev) => [...prev, ...list.map((file) => ({ file, preview: URL.createObjectURL(file) }))]);
+    alerts.success(list.length === 1 ? "Image added." : `${list.length} images added.`);
+  };
+
   const handlePaste = async (e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -41,17 +52,18 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
         e.preventDefault();
         const file = item.getAsFile();
         if (!file) return;
-        setCover(file);
-        setCoverPreview(URL.createObjectURL(file));
-        alerts.success("Image pasted as cover.");
+        addImageFiles([file]);
         return;
       }
     }
   };
 
-  const removeCover = () => {
-    setCover(undefined);
-    setCoverPreview(null);
+  const removeImage = (index: number) => {
+    setImages((prev) => {
+      const entry = prev[index];
+      if (entry?.file) URL.revokeObjectURL(entry.preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const submit = async (ev: Event) => {
@@ -66,7 +78,7 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
     setSaving(true);
     try {
       const data: Record<string, unknown> = { title: title(), excerpt: excerpt(), body: body(), status: status() };
-      if (cover()) data.cover = cover();
+      data.images = images().map((entry) => entry.file ?? entry.name).filter((v): v is File | string => v != null);
       if (isSuperuser() && authorId()) data.author = authorId();
       const saved = props.initial
         ? await pb.collection("posts").update<PostsResponse>(props.initial.id, data, { $autoCancel: false })
@@ -93,16 +105,17 @@ export default function PostEditor(props: { initial?: PostsResponse; onSave: (id
           <option value="published">Published</option>
         </select>
       </label>
-      <label data-field>Cover
-        <Show
-          when={coverPreview()}
-          fallback={<input type="file" accept="image/*" onChange={(e) => { const f = e.currentTarget.files?.[0]; if (f) { setCover(f); setCoverPreview(URL.createObjectURL(f)); } }} />}
-        >
-          <div class="cover-preview">
-            <img src={coverPreview()!} alt="Cover preview" />
-            <button type="button" class="outline" onClick={removeCover}>Remove</button>
-          </div>
-        </Show>
+      <label data-field>Images
+        <small>First image is used as cover.</small>
+        <input type="file" accept="image/*" multiple onChange={(e) => { if (e.currentTarget.files) addImageFiles(e.currentTarget.files); e.currentTarget.value = ""; }} />
+        <div class="cover-preview">
+          <For each={images()}>{(entry, i) =>
+            <div class="cover-preview">
+              <img src={entry.preview} alt={`Image ${i() + 1}`} />
+              <button type="button" class="outline" onClick={() => removeImage(i())}>Remove</button>
+            </div>
+          }</For>
+        </div>
       </label>
       <Show when={isSuperuser()}>
         <label data-field>Author
