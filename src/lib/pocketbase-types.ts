@@ -116,7 +116,7 @@ export type PostsStatusOptions = typeof PostsStatusOptions[keyof typeof PostsSta
 export type PostsRecord = {
 	author?: RecordIdString
 	body?: HTMLString
-	cover?: FileNameString
+	images?: FileNameString[]
 	created: IsoAutoDateString
 	excerpt?: string
 	id: string
