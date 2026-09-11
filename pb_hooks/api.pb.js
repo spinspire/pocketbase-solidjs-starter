@@ -17,3 +17,20 @@ routerAdd(
   },
   $apis.requireAuth(),
 );
+
+/**
+ * Public site config. Reads config.json from the hooks dir and overlays
+ * the app name from PocketBase settings. No auth.
+ */
+routerAdd("GET", "/api/config", function (c) {
+  var bytes = $os.readFile(__hooks + "/config.json");
+  var str = "";
+  for (var i = 0; i < bytes.length; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  var config = JSON.parse(str);
+  var settings = $app.settings();
+  config.site.name = settings.meta.appName;
+  config.site.copyright = settings.meta.appName;
+  return c.json(200, config);
+});
