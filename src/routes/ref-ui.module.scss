@@ -1,0 +1,32 @@
+// UI Reference page: section cards live here, look comes from oat.
+// Adapted from the Svelte port source's scoped <style>.
+.section {
+  padding: var(--space-4);
+  margin-block: var(--space-6);
+  border-radius: var(--radius-medium);
+  background: var(--faint);
+
+  h2 {
+    margin-top: 0;
+  }
+
+  pre {
+    padding: var(--space-3);
+    border-radius: var(--radius-medium);
+    background: var(--muted);
+    overflow-x: auto;
+    font-size: 0.85em;
+  }
+
+  code {
+    font-size: 0.9em;
+  }
+}
+
+.mb4 {
+  margin-block-end: var(--space-4);
+}
+
+.mt4 {
+  margin-block-start: var(--space-4);
+}

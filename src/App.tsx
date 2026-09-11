@@ -11,6 +11,7 @@ import './App.scss';
 const NAV_LINKS = [
   { href: paths(), label: 'Home', end: true },
   { href: paths.blog(), label: 'Blog' },
+  { href: '/ref-ui', label: 'UI Ref' },
 ] as const;
 
 export default function App() {
