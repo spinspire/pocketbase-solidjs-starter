@@ -1,11 +1,12 @@
 import { Title } from "@solidjs/meta";
 import type { RouteProps } from "@solidjs/router";
-import { Errored, Loading, Show, createMemo } from "solid-js";
+import { Errored, For, Loading, Show, createMemo } from "solid-js";
 import { currentUser, isSuperuser, pb } from "@/lib/pb";
 import type { PostsResponse, UsersResponse } from "@/lib/pocketbase-types";
 import { renderMarkdown } from "@/lib/markdown";
 import { dataRev } from "@/lib/refresh";
 import DeletePost from "@/components/DeletePost";
+import ImgModal from "@/components/ImgModal";
 import { paths } from "@/router";
 import type { Router } from "@/router";
 
@@ -17,12 +18,23 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
       requestKey: `post-${props.params.slug}`,
     });
   });
-  const coverUrl = createMemo(() => {
+  const images = createMemo(() => {
     const p = post();
-    if (!p) return null;
+    if (!p) return [] as string[];
     const raw = p.images as unknown as string | string[] | undefined;
-    const first = Array.isArray(raw) ? raw[0] : typeof raw === "string" ? raw : undefined;
-    return first ? pb.files.getURL(p, first, { thumb: "800x0" }) : null;
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === "string") return [raw];
+    return [] as string[];
+  });
+  const coverThumb = createMemo(() => {
+    const p = post();
+    const list = images();
+    return p && list[0] ? pb.files.getURL(p, list[0], { thumb: "800x0" }) : null;
+  });
+  const coverFull = createMemo(() => {
+    const p = post();
+    const list = images();
+    return p && list[0] ? pb.files.getURL(p, list[0]) : null;
   });
   // Read-only view. Editing lives only in the /edit route (single editor UI).
   const canEdit = createMemo(() => {
@@ -51,7 +63,26 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
           </div>
           <h1>{post().title}</h1>
           <p class="text-light">{post().publishedAt ?? post().created} · {post().expand?.author?.name ?? "Unknown"}</p>
-          <Show when={coverUrl()}>{(url) => <img src={url()} alt="" class="post-cover" />}</Show>
+          <Show when={coverThumb()}>
+            {(thumb) => (
+              <Show when={coverFull()}>
+                {(full) => <ImgModal src={thumb()} full={full()} alt={post().title} />}
+              </Show>
+            )}
+          </Show>
+          <Show when={images().length > 1}>
+            <div class="hstack gap-2">
+              <For each={images().slice(1)}>
+                {(img) => (
+                  <ImgModal
+                    src={pb.files.getURL(post(), img, { thumb: "200x200" })}
+                    full={pb.files.getURL(post(), img)}
+                    alt={post().title}
+                  />
+                )}
+              </For>
+            </div>
+          </Show>
           <div class="markdown-body" innerHTML={renderMarkdown(post().body)} />
         </main>
       </Loading>
