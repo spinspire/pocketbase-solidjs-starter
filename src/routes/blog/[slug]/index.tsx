@@ -39,6 +39,7 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
             </Show>
             <Show when={canEdit()}>
               <a href={`${paths.blog(props.params.slug)()}/edit`} class="button outline small">Edit post</a>
+              <a href={`/auditlog/posts/${post().id}`} class="button ghost small">Audit log</a>
               {/* Keyed: DeletePost takes settled strings, never a pending memo. */}
               <Show when={post()} keyed>
                 {(p) => <DeletePost id={p.id} title={p.title} />}
