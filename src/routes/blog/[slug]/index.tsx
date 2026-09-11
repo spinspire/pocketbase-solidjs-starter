@@ -19,7 +19,10 @@ export default function PostDetail(props: RouteProps<"/blog/:slug">) {
   });
   const coverUrl = createMemo(() => {
     const p = post();
-    return p?.cover ? pb.files.getURL(p, p.cover, { thumb: "800x0" }) : null;
+    if (!p) return null;
+    const raw = p.images as unknown as string | string[] | undefined;
+    const first = Array.isArray(raw) ? raw[0] : typeof raw === "string" ? raw : undefined;
+    return first ? pb.files.getURL(p, first, { thumb: "800x0" }) : null;
   });
   // Read-only view. Editing lives only in the /edit route (single editor UI).
   const canEdit = createMemo(() => {

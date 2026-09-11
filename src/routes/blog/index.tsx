@@ -119,9 +119,9 @@ export default function BlogIndex() {
                   })()}
                 </span>
               </header>
-              <Show when={post.cover}>
+              <Show when={post.images?.[0]}>
                 <img
-                  src={pb.files.getURL(post, post.cover, { thumb: "800x450" })}
+                  src={pb.files.getURL(post, post.images[0], { thumb: "800x450" })}
                   alt=""
                   loading="lazy"
                 />
