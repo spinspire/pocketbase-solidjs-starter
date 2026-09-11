@@ -64,7 +64,7 @@ routerAdd(
       publishedAt: new Date().toISOString(),
       author: c.auth ? c.auth.id : "",
     });
-    record.set("cover", $filesystem.fileFromURL("https://picsum.photos/500/300"));
+    record.set("images", [$filesystem.fileFromURL("https://picsum.photos/500/300")]);
     var form = new RecordUpsertForm($app, record);
     form.submit();
     return c.json(200, record);
