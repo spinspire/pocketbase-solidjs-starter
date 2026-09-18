@@ -4,6 +4,7 @@
 # so native deps resolve to glibc prebuilts — no compilers, no minutes-long
 # node-gyp on musl. The runtime stays minimal alpine.
 ARG PB_VERSION=0.40.3
+ARG PB_PORT=8090
 
 FROM oven/bun:1 AS client
 # --ignore-scripts: better-sqlite3 (via pocketbase-typegen) would otherwise
@@ -46,4 +47,5 @@ COPY --chown=app:app pb_migrations ./pb_migrations
 # paths relative to the executable, not the working directory.
 ENV PB_BIN=/app/pocketbase
 USER app
+EXPOSE $PB_PORT
 ENTRYPOINT ["tini", "--", "./entrypoint.sh"]
