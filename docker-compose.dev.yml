@@ -1,0 +1,18 @@
+# Live dev customisations. Copy to docker-compose.override.yml (git-ignored)
+# and uncomment what you need. Never commit the override file itself.
+services:
+  app:
+    # special Dockerfile, for live dev
+    build: { dockerfile: Dockerfile.dev }
+    image: ${COMPOSE_PROJECT_NAME}-dev
+    
+    # Live-reload hooks/migrations from source instead of the image copy.
+    volumes:
+      - .:/app
+      # Persist data on the host instead of the named volume.
+      - ./pb_data:/app/pb_data
+    
+    # Expose PocketBase locally (base compose publishes no ports).
+    # ports:
+    #  - "127.0.0.1:5173:5173"
+    #  - "127.0.0.1:8090:8090"

@@ -64,7 +64,7 @@ process.on('SIGTERM', () => killPb('SIGTERM'));
 export default defineConfig({
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': resolve(import.meta.dirname, 'src'),
     },
   },
   // Turnkey client mode: no index.html and no mount file — the plugin
@@ -86,6 +86,7 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    allowedHosts: true,
     proxy: {
       '/api': 'http://localhost:8090',
       '/_': 'http://localhost:8090',

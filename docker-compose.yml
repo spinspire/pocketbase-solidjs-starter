@@ -25,12 +25,12 @@ services:
       PB_TESTUSER_PASSWORD: ${PB_TESTUSER_PASSWORD:-}
     volumes:
       - pbdata:/app/pb_data
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8090/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+    # healthcheck:
+    #   test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8090/api/health || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 15s
     logging:
       driver: json-file
       options:

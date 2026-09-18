@@ -1,0 +1,10 @@
+FROM oven/bun:1 # ":1" not ":alpine", or else solidjs won't compile
+WORKDIR /app
+ENV HOME /app
+RUN apt update && apt install -y ca-certificates wget unzip tini
+# --ignore-scripts: better-sqlite3 (via pocketbase-typegen) would otherwise
+# compile SQLite from source for minutes. Nothing at build time needs install
+# scripts — the Solid compiler binary ships as a plain optional-dependency
+# file on glibc, and better-sqlite3 is never loaded by `bun run build`.
+EXPOSE 5173
+CMD bun install --frozen-lockfile --ignore-scripts && bun run dev -- --host
