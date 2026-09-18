@@ -1,4 +1,5 @@
-FROM oven/bun:1 # ":1" not ":alpine", or else solidjs won't compile
+# ":1" not ":alpine", or else solidjs won't compile
+FROM oven/bun:1
 WORKDIR /app
 ENV HOME /app
 RUN apt update && apt install -y ca-certificates wget unzip tini
